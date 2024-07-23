@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "EduZen",
+    "slug": "EduZen",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/splash.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "native",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.louhichi94.EduZen" ,
+      "permissions": ["INTERNET"]
+    },
+    "web": {
+      "favicon": "./assets/splash.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "934d9aca-90e2-4a24-a9f4-82f37860d224"
+      }
+    }
+  }
+}
