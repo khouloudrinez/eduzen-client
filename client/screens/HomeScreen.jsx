@@ -219,11 +219,11 @@ const HomeScreen = ({ navigation, route }) => {
         <View style={styles.nextTask}>
           <View style={styles.taskHeader}>
             <Text style={styles.nextTaskTitle}>Prochaine tâche</Text>
-            <Text style={styles.nextTaskTime}>Prévu à 16 h</Text>
+            <Text style={styles.nextTaskTime}></Text>
           </View>
-          <Text style={styles.nextTaskActivity}>Activité sportif</Text>
+          <Text style={styles.nextTaskActivity}>Choisir une activité</Text>
           <Text style={styles.nextTaskDescription}>
-            Aller à la salle de Gym
+          Ajoute tes tâches et prends le contrôle de ton temps
           </Text>
         </View>
         <View style={styles.container1}>
@@ -236,9 +236,9 @@ const HomeScreen = ({ navigation, route }) => {
             />
             <View style={styles.content1}>
               <Text style={styles.objectivesTitle}>Mes objectifs</Text>
-              <Text style={styles.objectiveSubtitle}>Perdre du poids</Text>
+              <Text style={styles.objectiveSubtitle}>Es-tu prêt(e) à relever de nouveaux défis et à atteindre tes objectifs ?</Text>
               <Text style={styles.objectivesDescription}>
-                Dans 1 mois 2 semaines et 3 jours
+               -
               </Text>
             </View>
             <MaterialIcons
@@ -262,10 +262,11 @@ const HomeScreen = ({ navigation, route }) => {
           </View>
         </View>
         <View style={styles.wellbeing}>
-          <Text style={styles.wellbeingTitle}>Pour votre bien-être</Text>
+          <Text style={styles.wellbeingTitle}>Votre espace bien-être</Text>
           <Text style={styles.wellbeingDescription}>
-            Gagnez des points ZEN pour chaque article lu afin de collecter un
-            maximum et de les convertir en cadeaux auprès de nos partenaires.
+            
+Collecte des points ZEN en apprenant à gérer ton temps efficacement et en faisant des exercices pour augmenter ta concentration. 
+
           </Text>
           <ScrollView horizontal={true} contentContainerStyle={styles.articles}>
             {articles.map((article, index) => (
@@ -280,28 +281,30 @@ const HomeScreen = ({ navigation, route }) => {
           </ScrollView>
         </View>
         <View>
-          <LinearGradient
-            colors={["#3A98F5", "#00E9B8"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.cardContainerGradient}
-          >
-            <Image
-              source={require("../assets/home/EduZen Zed 01.png")}
-              style={styles.cardImage}
-            />
-            <View style={styles.cardContent}>
-              <Text style={styles.cardTitle}>Demander à Zed</Text>
-              <Text style={styles.cardText}>
-                Permettez à Zed de mieux vous connaître afin qu'il puisse vous
-                soutenir tout au long de votre expérience avec nous.
-              </Text>
-              <TouchableOpacity style={styles.cardButton}>
-                <Text style={styles.cardButtonText}>Discuter avec Zed</Text>
-              </TouchableOpacity>
-            </View>
-          </LinearGradient>
-        </View>
+  <LinearGradient
+    colors={["#3A98F5", "#00E9B8"]}
+    start={{ x: 0, y: 0 }}
+    end={{ x: 1, y: 1 }}
+    style={styles.cardContainerGradient}
+  >
+    <Image
+      source={require("../assets/home/EduZen Zed 01.png")}
+      style={styles.cardImage}
+    />
+    <View style={styles.cardContent}>
+      <View style={styles.textContent}>
+        <Text style={styles.cardTitle}>Soyez le premier à tester Zedbot</Text>
+        <Text style={styles.cardText}>
+          Bonjour ! Je suis Zedbot, votre compagnon IA pour le bien-être mental. Considérez-moi comme un assistant confidentiel, à l'écoute et offrant un soutien dans un espace sûr et sécurisé.
+        </Text>
+      </View>
+      <TouchableOpacity style={styles.cardButton}>
+        <Text style={styles.cardButtonText}>Discuter avec Zed</Text>
+      </TouchableOpacity>
+    </View>
+  </LinearGradient>
+</View>
+
       </ScrollView>
       <View style={styles.bottomNav}>
         <BottomNavBar
@@ -483,12 +486,12 @@ pointsContainer: {
     alignItems: "center",
   },
   objectivesTitle: {
-    fontSize: 13,
+    fontSize: 14,
     color: "#20AD96",
     marginBottom: 5, // Reduced margin
   },
   objectiveSubtitle: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: "bold",
     marginBottom: 5, // Reduced margin
   },
@@ -579,15 +582,7 @@ pointsContainer: {
     bottom: 0,
     width: "100%",
   },
-  // cardContainer: {
-  //   flexDirection: 'row',
-  //   backgroundColor: '#E0F7FA',
-  //   padding: 20,
-  //   borderRadius: 10,
-  //   marginBottom: 20,
-  //   justifyContent: 'space-between',
 
-  // },
   cardImage: {
     top: 18,
     width: width * 0.19,
@@ -596,10 +591,14 @@ pointsContainer: {
   },
   cardContent: {
     flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+  },
+  textContent: {
+    flex: 1,
   },
   cardTitle: {
     fontSize: 12,
-    // color:'#FFFFFF',
     marginBottom: 10,
   },
   cardText: {
@@ -608,25 +607,27 @@ pointsContainer: {
     marginBottom: 20,
   },
   cardButton: {
+    left:-45,
     backgroundColor: "white",
-    paddingVertical: 10,
+    paddingVertical: 12,
     paddingHorizontal: 15,
     borderRadius: 5,
-    // alignSelf:"stretch",
-    width: width * 0.5,
+    alignSelf: "center",
+    width: width * 0.7,
   },
   cardContainerGradient: {
     flexDirection: "row",
     padding: 20,
     borderRadius: 10,
-    justifyContent: "space-between",
     marginBottom: 70,
   },
   cardButtonText: {
     color: '#3A98F5',
     fontSize: 14,
     fontWeight: 'bold',
+    alignSelf: "center",
   },
+  
   rewardsContainer: {
     padding: 30,
     borderRadius: 10,

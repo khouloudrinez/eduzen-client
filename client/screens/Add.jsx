@@ -57,30 +57,38 @@ const images = {
 
 const sections = [
   {
-    title: "Cours",
+    title: "Education",
     data: [
-      { image: "universite", text: "Université" },
-      { image: "extra", text: "Extra" },
+      { image: "universite", text: "Cours" },
+      { image: "extra", text: "Tutorat" },
       { image: "en_ligne", text: "En ligne" },
-      { image: "personnel", text: "Personnel" },
+      { image: "en_ligne", text: "Self-Study" },
+      { image: "personnel", text: "Examen" },
+      { image: "personnel", text: "Projet" },
     ],
   },
-  {
-    title: "Examens",
-    data: [
-      { image: "universite", text: "Université" },
-      { image: "extra", text: "Extra" },
-    ],
-  },
+  
   {
     title: "Tâches",
     data: [
-      { image: "sante", text: "Santé" },
+      { image: "sante", text: "Bien-être" },
       { image: "maison", text: "Maison" },
       { image: "hobbie", text: "Hobbie" },
-      { image: "sport", text: "Sport" },
-      { image: "shopping", text: "Shopping" },
+      { image: "sport", text: "RDV" },
+      // { image: "shopping", text: "Shopping" },
+      // { image: "personnel", text: "Personnel" },
+    ],
+  },
+  {
+    title: "Objectifs",
+    data: [
+      { image: "education", text: "Éducation" },
+      { image: "santebienetre", text: "Bien-être" },
+      { image: "finance", text: "Finance" },
+      { image: "relation", text: "Relation" },
       { image: "personnel", text: "Personnel" },
+      { image: "shopping", text: "Shopping" },
+      
     ],
   },
   {
@@ -89,22 +97,11 @@ const sections = [
       { image: "foire", text: "Foire" },
       { image: "fete", text: "Fête" },
       { image: "famille", text: "Famille" },
-      { image: "reseau", text: "Réseau" },
       { image: "amis", text: "Amis" },
       { image: "personnel", text: "Personnel" },
     ],
   },
-  {
-    title: "Objectifs",
-    data: [
-      { image: "education", text: "Éducation" },
-      { image: "santebienetre", text: "Santé et Bien-être" },
-      { image: "finance", text: "Finance" },
-      { image: "relation", text: "Relation" },
-      { image: "shopping", text: "Shopping" },
-      { image: "personnel", text: "Personnel" },
-    ],
-  },
+
 ];
 const Add = ({ navigation, route }) => {
 

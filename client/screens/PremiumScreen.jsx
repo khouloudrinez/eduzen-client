@@ -8,18 +8,18 @@ const { width, height } = Dimensions.get("window");
 const toolsData = [
   {
     id: '1',
-    title: 'Tool 1',
+    title: 'Fonctionnalités avancées Zedbot',
     image: 'https://www.sendinblue.com/wp-content/uploads/2022/06/what_is_chatbot_fb.png',
   },
   {
     id: '2',
-    title: 'Tool 2',
+    title: 'Coaching en ligne (message & call)',
     image: 'https://www.versaclinic.app/assets/imgs/benefit_patient_record.png',
   },
   {
     id: '3',
-    title: 'Tool 3',
-    image: 'https://via.placeholder.com/150',
+    title: 'Des cours Power Skills',
+    image: 'https://www.versaclinic.app/assets/imgs/benefit_patient_record.png',
   },
   {
     id: '4',
@@ -28,7 +28,7 @@ const toolsData = [
   },
 ];
 
-const PremiumScreen = ({navigation, route, mongoUri}) => {
+const PremiumScreen = ({navigation, route}) => {
   const currentScreen = route.name;
   
 
@@ -47,11 +47,11 @@ const PremiumScreen = ({navigation, route, mongoUri}) => {
           >
             <Text style={styles.premiumTitle}>Passer au premium</Text>
             <Text style={styles.premiumSubtitle}>Pour un bien-être quotidien</Text>
-            {Array(5).fill(null).map((_, index) => (
-              <View key={index} style={styles.feature}>
-                <Text style={styles.featureText}>Passer au premium</Text>
+            
+              <View style={styles.feature}>
+                <Text style={styles.featureText}>EduZen ne se limite pas à votre charge de travail. On reconnait l'importance de la réussite scolaire/professionnelle et du bien-être mental. Passez au Premium et profitez d’un espace complète combinant la science du comportement, la technologie et le soutien humain</Text>
               </View>
-            ))}
+            
             <TouchableOpacity style={styles.premiumButton}>
               <Text style={styles.premiumButtonText}>Passer au premium</Text>
             </TouchableOpacity>
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   toolTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
   },
 });

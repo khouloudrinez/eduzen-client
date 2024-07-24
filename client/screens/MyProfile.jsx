@@ -1,11 +1,13 @@
 import React, { useContext  } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Image , Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Image ,Linking, Dimensions } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
 import { API_URL } from '@env';
 import BottomNavBar from '../components/BottomNavBar';
 import { UserContext } from "./UserContext";
+import { BlurView } from 'expo-blur';
+
 
 const MyProfile = ({ navigation, route }) => {
   const currentScreen = route.name;
@@ -45,33 +47,44 @@ const MyProfile = ({ navigation, route }) => {
             <Text style={styles.menuText}>Paramètres</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.menuItem}>
-            <Text style={styles.menuText}>Dire à un(e) ami(e)</Text>
+            <Text style={styles.menuText}>Inviter un(e) ami(e) </Text>
             <View style={styles.badge}>
-              <Text style={styles.badgeText}>500</Text>
+              <Text style={styles.badgeText}>100</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
-            <Text style={styles.menuText}>À propos de EduZen</Text>
-          </TouchableOpacity>
+          <TouchableOpacity
+    style={styles.menuItem}
+    onPress={() => Linking.openURL('https://edu-zen.com/')}
+  >
+    <Text style={styles.menuText}>À propos de EduZen</Text>
+  </TouchableOpacity>
         </View>
         <Text style={styles.sectionTitle}>Détails du compte</Text>
-        <View style={styles.accountDetails}>
-          <TouchableOpacity style={styles.accountItem}>
-            <Text style={styles.accountText}>Wallet</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.accountItem}>
-            <Text style={styles.accountText}>Zed bot (AI)</Text>
-            <View style={styles.premiumBadgeContainer}>
-              <Text style={styles.premiumBadgeText}>Premium</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.accountItem}>
-            <Text style={styles.accountText}>Coaching</Text>
-            <View style={styles.premiumBadgeContainer}>
-              <Text style={styles.premiumBadgeText}>Premium</Text>
-            </View>
-          </TouchableOpacity>
+        <View style={styles.blurContainer}>
+  <BlurView
+    style={styles.blurView}
+    intensity={100}
+    tint="light"
+  >
+    <View style={styles.accountDetailsInner}>
+      <TouchableOpacity style={styles.accountItem}>
+        <Text style={styles.accountText}>Wallet</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.accountItem}>
+        <Text style={styles.accountText}>Zed bot (AI)</Text>
+        <View style={styles.premiumBadgeContainer}>
+          <Text style={styles.premiumBadgeText}>Premium</Text>
         </View>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.accountItem}>
+        <Text style={styles.accountText}>Coaching</Text>
+        <View style={styles.premiumBadgeContainer}>
+          <Text style={styles.premiumBadgeText}>Premium</Text>
+        </View>
+      </TouchableOpacity>
+    </View>
+  </BlurView>
+</View>
       </View>
       <BottomNavBar navigation={navigation} currentScreen={currentScreen}  />
     </View>
@@ -111,11 +124,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#E0E0E0',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  profilePicture: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
   },
   profilePictureText: {
     fontSize: 24,
@@ -171,9 +179,29 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   accountDetails: {
+    backgroundColor: 'transparent',
+    borderRadius: 10,
+    padding: 10,
+    width: '100%',
+    marginBottom: 20,
+    zIndex: 1, // Add zIndex to make sure it's on top
+  },
+  blurContainer: {
+    position: 'relative', // Ensure proper positioning
+    width: '100%',
+    overflow: 'hidden', // Ensure content doesn't overflow
+    marginBottom: 20,
+  },
+  blurView: {
+    borderRadius: 10,
+    padding: 10,
+    backgroundColor: 'transparent', // Ensure blur effect is visible
+  },
+  accountDetailsInner: {
     backgroundColor: '#FFFFFF',
     borderRadius: 10,
     padding: 10,
+    zIndex: 2, 
   },
   accountItem: {
     flexDirection: 'row',

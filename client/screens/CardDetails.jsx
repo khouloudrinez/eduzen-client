@@ -1,32 +1,47 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, Image, StyleSheet, Dimensions, ScrollView } from 'react-native';
+import { Video } from 'expo-av';
 
 const { width } = Dimensions.get('window');
 
 const CardDetails = ({ route }) => {
-  const { title, image, points, category, description } = route.params.item;
+  const { title, image, video, points, category, description } = route.params.item;
 
   return (
-    <View style={styles.container}>
-      <Image source={image} style={styles.image} />
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.category}>{category}</Text>
       <Text style={styles.points}>Points: {points}</Text>
+      {video ? (
+        <Video
+          source={video}
+          rate={1.0}
+          volume={1.0}
+          isMuted={false}
+          resizeMode="cover"
+          shouldPlay
+          isLooping
+          style={styles.media}
+          useNativeControls
+        />
+      ) : (
+        <Image source={image} style={styles.media} />
+      )}
       <Text style={styles.description}>{description}</Text>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 20,
+    padding: 40,
     backgroundColor: '#ffffff',
   },
-  image: {
+  media: {
     width: '100%',
     height: width * 0.6,
     borderRadius: 10,
+    marginTop: 20,
   },
   title: {
     fontSize: 24,
@@ -48,7 +63,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333333',
     marginTop: 10,
-    paddingBottom: 200
+    paddingBottom: 200,
   },
 });
 
