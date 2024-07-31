@@ -18,6 +18,7 @@ export const UserProvider = ({ children }) => {
     school: '',
     dateOfBirth: '',
     gender: '',
+    tasks: [],
     points: 100,
     earnedPoints: {}
   });
@@ -69,9 +70,14 @@ export const UserProvider = ({ children }) => {
     });
     Alert.alert("Félicitations", message);
   };
-
+  const addTask = (newTask) => {
+    setUser((prevUser) => ({
+      ...prevUser,
+      tasks: [...prevUser.tasks, newTask],
+    }));
+  };
   return (
-    <UserContext.Provider value={{ user, updateUser, addPoints }}>
+    <UserContext.Provider value={{ user, updateUser, addPoints,addTask }}>
       {children}
     </UserContext.Provider>
   );

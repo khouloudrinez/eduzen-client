@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback, useRef, useContext } from "react";
 import {
   View,
   Text,
@@ -18,6 +18,7 @@ import { CalendarList } from "react-native-calendars";
 import {
   fetchItems as fetchItemsApi,
   fetchHolidays as fetchHolidaysApi,
+  fetchItems,
 } from "../helpers/helperfnAgenda";
 import {
   filterItemsByCurrentMonth,
@@ -27,12 +28,18 @@ import {
 import BottomNavBar from "../components/BottomNavBar";
 import Sidebar from "../components/Sidebar";
 import SearchBar from "../components/SearchBar";
+import { UserContext } from "./UserContext";
 
 const menuIcon = require("../assets/dd.png");
 const searchIcon = require("../assets/search.png");
 
 const CalendarScreen = ({ navigation, route }) => {
-  const [items, setItems] = useState({});
+  // const [items, setItems] = useState({});
+  const [itemsEdu, setItemsEdu] = useState({});
+  const [itemsTa, setItemsTa] = useState({});
+  const [itemsOb, setItemsOb] = useState({});
+  const [itemsEv, setItemsEv] = useState({});
+  const [currentFilter, setCurrentFilter] = useState('All'); 
   const [selectedDate, setSelectedDate] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [holidays, setHolidays] = useState([]);
@@ -41,83 +48,103 @@ const CalendarScreen = ({ navigation, route }) => {
   const sidebarWidth = 250;
   const sidebarAnimation = useRef(new Animated.Value(0)).current;
   const rightSidebarAnimation = useRef(new Animated.Value(0)).current;
+  const { user } = useContext(UserContext);
+
   // const email = route.params?.email;
   const currentScreen = route.name;
-
   useEffect(() => {
     const fetchData = async () => {
-      // try {
-      //   const itemsData = await fetchItemsApi(route.params.email);
-      //   const filteredItems = filterItemsByCurrentMonth(itemsData);
-      //   const formattedItems = formatItems(filteredItems);
-      //   console.log("Fetched items:", formattedItems); // Debugging line
-      //   setItems(formattedItems);
-      // } catch (error) {
-      //   console.error(error);
-      //   Alert.alert("Alerte", "Vous n'avez pas encore d'évenements");
-      // }
-
       try {
+        const formattedItems = formatItems(user.tasks);
+   
+  
+        const filterByCategory = (items, category) => {
+          const filteredItems = {};
+          for (const [date, events] of Object.entries(items)) {
+            filteredItems[date] = events.filter(event => event.categorie === category);
+          }
+          return filteredItems;
+        };
+  
+        const itemsEduc = filterByCategory(formattedItems, "Education");
+   
+  
+        const itemsTac = filterByCategory(formattedItems, "Tâches");
+  
+  
+        const itemsObj = filterByCategory(formattedItems, "Objectifs");
+    
+  
+        const itemsEve = filterByCategory(formattedItems, "Événements");
+     
+  
+        setItemsEdu(itemsEduc);
+        setItemsTa(itemsTac);
+        setItemsOb(itemsObj);
+        setItemsEv(itemsEve);
+  
         const holidaysData = await fetchHolidaysApi();
         const formattedHolidays = formatHolidays(holidaysData);
-        console.log("Fetched holidays:", formattedHolidays); // Debugging line
+     
         setHolidays(formattedHolidays);
       } catch (error) {
         console.error(error);
         Alert.alert("Error", "Échec de la récupération des jours fériés");
       }
     };
-
+  
     fetchData();
   }, []);
-
+  
   const onDayPress = (day) => {
-    console.log("Selected date:", day.dateString); // Debugging line
+
     setSelectedDate(day.dateString);
     setModalVisible(true);
   };
-
-  const customMarking = useCallback(
-    (date) => {
-      let marked = false;
-      let customStyles = {};
-
-      if (items[date]) {
-        marked = true;
-        customStyles = {
-          customContainerStyle: {
-            backgroundColor: "blue",
-          },
-        };
-      }
-
-      return { marked, ...customStyles };
-    },
-    [items]
-  );
-
+  
   const today = new Date();
   const year = today.getFullYear();
   const month = (today.getMonth() + 1).toString().padStart(2, "0");
   const day = today.getDate().toString().padStart(2, "0");
-
   const todayDateString = `${year}-${month}-${day}`;
-
-  const markedDates = {
-    ...Object.keys(items).reduce((acc, date) => {
-      acc[date] = { marked: true, ...customMarking(date) };
-      return acc;
-    }, {}),
-    ...Object.keys(holidays).reduce((acc, date) => {
-      acc[date] = { marked: true, dotColor: "green" };
-      return acc;
-    }, {}),
-    [todayDateString]: { selected: true, selectedColor: "blue" },
+  
+  const mergeMarkedDates = (currentDates, newDates, color) => {
+    for (const [date, events] of Object.entries(newDates)) {
+      if (events.length > 0) {
+        if (!currentDates[date]) {
+          currentDates[date] = { marked: true, dots: [] };
+        }
+        currentDates[date].dots.push({ color });
+      }
+    }
+    return currentDates;
   };
+  
+  let markedDates = {};
+  if (currentFilter === 'All' || currentFilter === 'Education') {
+    markedDates = mergeMarkedDates(markedDates, itemsEdu, "grey");
+  }
+  if (currentFilter === 'All' || currentFilter === 'Taches') {
+    markedDates = mergeMarkedDates(markedDates, itemsTa, "red");
+  }
+  if (currentFilter === 'All' || currentFilter === 'Objectif') {
+    markedDates = mergeMarkedDates(markedDates, itemsOb, "blue");
+  }
+  if (currentFilter === 'All' || currentFilter === 'Evenements') {
+    markedDates = mergeMarkedDates(markedDates, itemsEv, "purple");
+  }
+  if (currentFilter === 'All' || currentFilter === 'Holidays' ) {
+    markedDates = mergeMarkedDates(markedDates, holidays, "green");
+  }
+  markedDates[todayDateString] = { selected: true, selectedColor: "blue" };
+
+
+  
 
   const renderEvent = ({ item, index }) => (
+
     <View style={styles.item}>
-      {console.log("item here", item)}
+   
 
       <View style={styles.itemContent}>
         <Text style={styles.itemText}>
@@ -134,6 +161,7 @@ const CalendarScreen = ({ navigation, route }) => {
         <Text style={styles.itemText}>
           Type du rappel: {item.type || "Vacances"}
         </Text>
+       {item.categorie &&( <Text style={styles.itemText}>Categorie du rappel :{item.categorie}</Text>)}
       </View>
     </View>
   );
@@ -219,19 +247,19 @@ const CalendarScreen = ({ navigation, route }) => {
         <Animated.View
           style={[styles.sidebarContainer, { transform: [{ translateX }] }]}
         >
-          <Sidebar />
+          <Sidebar setFilter={setCurrentFilter} toggleSidebar={toggleSidebar} />
         </Animated.View>
         <Animated.View
           style={[styles.rightSidebarContainer, { transform: [{ translateX: translateXRight }] }]}
         >
-          <SearchBar onSearch={handleSearch} />
+          <SearchBar onSearch={handleSearch}  />
         </Animated.View>
         <View style={styles.mainContent}>
           <CalendarList
             markedDates={markedDates}
             onDayPress={onDayPress}
             calendarStyle={styles.calendar}
-            markingType={"custom"}
+            markingType={"multi-dot"}
           />
           {selectedDate && (
             <Modal
@@ -246,9 +274,12 @@ const CalendarScreen = ({ navigation, route }) => {
                     Evenements pour le : {selectedDate}
                   </Text>
                   <FlatList
-                    data={[
-                      ...(items[selectedDate] || []),
-                      ...(holidays[selectedDate] || []),
+                     data={[
+                      ...(currentFilter === 'All' || currentFilter === 'Education' ? itemsEdu[selectedDate] || [] : []),
+                      ...(currentFilter === 'All' || currentFilter === 'Taches' ? itemsTa[selectedDate] || [] : []),
+                      ...(currentFilter === 'All' || currentFilter === 'Evenements' ? itemsEv[selectedDate] || [] : []),
+                      ...(currentFilter === 'All' || currentFilter === 'Objectif' ? itemsOb[selectedDate] || [] : []),
+                      ...(currentFilter === 'All' ? holidays[selectedDate] || [] : []),
                     ]}
                     renderItem={renderEvent}
                     keyExtractor={(item, index) =>

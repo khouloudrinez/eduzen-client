@@ -1,25 +1,22 @@
 import moment from 'moment';
 
-export const filterItemsByCurrentMonth = (itemsData) => {
-  const currentDate = moment();
-  return itemsData.filter((item) => {
-    const itemDate = moment(item.dateOf);
-    return itemDate.isSame(currentDate, 'month');
-  });
-};
+
 
 export const formatItems = (itemsData) => {
+
   const formatted = {};
   itemsData.forEach((item) => {
-    const date = moment(item.dateOf).format('YYYY-MM-DD');
+
+    const date = moment(item.date).format('YYYY-MM-DD');
     if (!formatted[date]) {
       formatted[date] = [];
     }
     formatted[date].push({
-      name: item.nameOf,
+      name: item.nameOfTask,
       email: item.email,
-      time: moment(item.timeOf).format('HH:mm'),
+      time: moment(item.hour).format('HH:mm'),
       type: item.typeOf,
+      categorie:item.categorieOf
     });
   });
   return formatted;
@@ -52,7 +49,7 @@ export const fetchItems = async (email) => {
 
 export const fetchHolidays = async () => {
   const response = await axios.get(
-    `https://calendarific.com/api/v2/holidays?api_key=${CALENDARIFIC_API_KEY}&country=${CALENDARIFIC_COUNTRY}&year=${CALENDARIFIC_YEAR}&language=fr`
+    `https://calendarific.com/api/v2/holidays?api_key=izswbWEguTldJ6Hks31AYShuI6ZdYfSZ&country=tn&year=2024&language=fr`
   );
   // console.log(response.data.response.holidays,'holidays');
   return response.data.response.holidays;
