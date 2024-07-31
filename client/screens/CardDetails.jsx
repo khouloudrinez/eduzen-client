@@ -28,6 +28,7 @@ const CardDetails = ({ route, navigation }) => {
         item.pointsEarned = true; // Mark as earned
       }
     } else if (item.category === 'Astuces') {
+      console.log('view count',viewCount)
       if (viewCount < 3) {
         addPoints(item.id, 'Astuces', 10, `Vous avez gagné 10 points (total ${10 * (viewCount + 1)}/30)`);
         setViewCount(viewCount + 1);
