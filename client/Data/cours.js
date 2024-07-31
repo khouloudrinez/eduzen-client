@@ -2,7 +2,7 @@ const cours = [
     {
       categorie: "Langues",
       cours: [
-        { titre: "Français", niveaux: ["Grammaire et orthographe", "Littérature française", "Français langue étrangère (FLE)"] },
+        { titre: "maths", niveaux: ["Grammaire et orthographe", "Littérature française", "Français langue étrangère (FLE)"] },
         { titre: "Anglais", niveaux: ["Anglais débutant à avancé", "Anglais des affaires", "Préparation aux examens (TOEFL, IELTS)"] }
       ]
     },
