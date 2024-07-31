@@ -29,7 +29,7 @@ const UpperNavBar = ({ navigation, currentScreen }) => {
                     end={{ x: 1, y: 1 }}
                     style={styles.pointsContainer}
                 >
-                    <Text style={styles.points}>1000</Text>
+                    <Text style={styles.points}>{user.points}</Text>
                 </LinearGradient>
 
                 

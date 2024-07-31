@@ -11,7 +11,7 @@ const cours = [
       cours: [
         { titre: "Mathématiques", niveaux: ["Algèbre", "Géométrie", "Calcul intégral et différentiel"] },
         { titre: "Physique", niveaux: ["Mécanique", "Électricité et magnétisme", "Physique quantique"] },
-        { titre: "Science", niveaux: ["Chimie organique", "Chimie inorganique", "Chimie analytique"] }
+        { titre: "Chimie", niveaux: ["Chimie organique", "Chimie inorganique", "Chimie analytique"] }
       ]
     },
     {
