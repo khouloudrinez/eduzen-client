@@ -1,5 +1,5 @@
-// UserContext.js
 import React, { createContext, useState } from 'react';
+import { Alert } from "react-native";
 
 export const UserContext = createContext();
 
@@ -19,6 +19,8 @@ export const UserProvider = ({ children }) => {
     dateOfBirth: '',
     gender: '',
     tasks: [],
+    points: 100,
+    earnedPoints: {}
   });
 
   const updateUser = (newUserData) => {
@@ -28,26 +30,9 @@ export const UserProvider = ({ children }) => {
       initials: `${newUserData.firstName[0]}${newUserData.lastName[0]}`,
     }));
   };
-  const addTask = (newTask) => {
-    setUser((prevUser) => ({
-      ...prevUser,
-      tasks: [...prevUser.tasks, newTask],
-    }));
-  };
 
-  const updateTask = (taskIndex, updatedTask) => {
-    setUser((prevUser) => {
-      const updatedTasks = prevUser.tasks.map((task, index) =>
-        index === taskIndex ? { ...task, ...updatedTask } : task
-      );
-      return {
-        ...prevUser,
-        tasks: updatedTasks,
-      };
-    });
-  };
   return (
-    <UserContext.Provider value={{ user, updateUser, addTask, updateTask }}>
+    <UserContext.Provider value={{ user, updateUser }}>
       {children}
     </UserContext.Provider>
   );

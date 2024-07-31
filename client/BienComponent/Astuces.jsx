@@ -5,12 +5,12 @@ import Card from '../screens/Card';
 
 const { width } = Dimensions.get('window');
 
-const Astuces = ({ data }) => {
+const Astuces = ({ data , onCardPress}) => {
   return (
     <View style={styles.container}>
       <FlatList
         data={data}
-        renderItem={({ item }) => <Card item={item} />}
+        renderItem={({ item }) => <Card item={item} onCardPress={onCardPress} />}
         keyExtractor={(item, index) => index.toString()}
         contentContainerStyle={styles.contentContainer}
       />

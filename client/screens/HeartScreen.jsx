@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState ,useContext  } from "react";
 import { View, Text, StyleSheet, TouchableOpacity , Dimensions } from "react-native";
 import BottomNavBar from "../components/BottomNavBar"; // Adjust the path if necessary
 import UpperNavBar from "../components/UpperNavBar";
@@ -9,13 +9,14 @@ import Exercices from "../BienComponent/Exercices";
 import { Video } from 'expo-av';
 import video1 from '../assets/Videos/1.mp4';
 import video2 from '../assets/Videos/2.mp4';
-
+import { UserContext } from "./UserContext";
+import Card from "./Card"; 
 
 const data = [
   {
     title: 'Vaincre le chaos : Pourquoi la gestion du temps est importante pour les étudiants',
     image: { uri: 'https://img.freepik.com/free-photo/schedule-alarm-clock-time-concept_53876-125407.jpg?t=st=1721303441~exp=1721307041~hmac=fdcce1fe01a4f407f354da688cf72eaa9675a82f45d09e5080967b2999e69fd5&w=996' },
-    points: 50,
+    points: 20,
     category: 'Article',
     description: `
 Jongler entre les devoirs scolaires, les activités parascolaires, la vie sociale et peut-être même un emploi à temps partiel - la vie étudiante peut ressembler à un tourbillon constant. Il n'est pas étonnant que rester organisé et gérer son temps puisse être un défi majeur. Mais maîtriser les techniques de gestion du temps est bien plus qu'éviter les sessions de bourrage de dernière minute. C'est un ingrédient clé pour la réussite scolaire, la réduction du stress et un sentiment de bien-être général.
@@ -30,7 +31,7 @@ Alors, comment les étudiants peuvent-ils développer de meilleures compétences
   {
     title: 'Trouver l\'équilibre : L\'importance de concilier vie professionnelle et vie personnelle',
     image: { uri: 'https://img.freepik.com/free-photo/cheerful-businessman-with-hand-drawn-bulb_1134-513.jpg?t=st=1721306258~exp=1721309858~hmac=113da3a3052376a713c198f45e65cbba2f76078dd60ec9ebaa85e1828e5818dc&w=996' },
-    points: 50,
+    points: 20,
     category: 'Article',
     description: `
 Dans le tourbillon de la vie moderne, jongler entre les responsabilités professionnelles et les obligations personnelles peut sembler être un exercice d'équilibriste sans fin. Que vous soyez étudiant, employé ou entrepreneur, trouver un équilibre entre votre vie professionnelle et votre vie personnelle est crucial pour votre bien-être général et votre réussite à long terme.
@@ -65,7 +66,7 @@ Concilier vie professionnelle et vie personnelle n'est pas toujours facile, mais
   {
     title: 'Hey les jeunes ! Prêts à booster votre bien-être mental ?',
     image: { uri: 'https://img.freepik.com/free-photo/blonde-girl-scratching-head-thinking-about-something-graduation-gown-cap-looking-pensive_176474-82449.jpg?t=st=1721306519~exp=1721310119~hmac=3f340540fbc71d7622c549fea5f8bfb32e06d728e9cb294563afb260f6b5fe81&w=996' },
-    points: 50,
+    points: 30,
     category: 'Astuces',
     description: `
 Imaginez un super pouvoir qui vous permet de gérer le stress, d'affronter les défis avec confiance et de profiter pleinement de la vie.
@@ -109,7 +110,7 @@ Ensemble, on peut créer un monde où le bien-être mental est accessible à tou
   {
     title: 'Hey les jeunes ! Prêts à booster votre bien-être mental ?',
     image: { uri: 'https://img.freepik.com/free-photo/hand-holding-squared-smiling-faces_23-2148317138.jpg?t=st=1721306258~exp=1721309858~hmac=f869da141b919acc30b962de8437a71cc13a1f39fbb59f834f7ed6bfdf0ca824&w=740' },
-    points: 50,
+    points: 30,
     category: 'Astuces',
     description: `
 Choisir sa carrière est une étape cruciale et parfois intimidante dans la vie d'un jeune. Face à la multitude de possibilités, il est facile de se sentir perdu et submergé.
@@ -161,22 +162,90 @@ Choisir sa carrière est un voyage, pas une destination. Profitez de ce processu
 
 const HeartScreen = ({ navigation, route }) => {
   const currentScreen = route.name;
-  
-
   const [activeComponent, setActiveComponent] = useState('Component1');
+  const { addPoints } = useContext(UserContext);
+
+  const [progress, setProgress] = useState({}); // Tracks progress of each card
+
+  const handleArticleReading = (id) => {
+    setProgress((prevProgress) => {
+      const newProgress = { ...prevProgress };
+      if (!newProgress[id]) {
+        newProgress[id] = { halfway: false, finished: false };
+      }
+
+      if (!newProgress[id].halfway) {
+        newProgress[id].halfway = true;
+        addPoints(10, "Vous avez gagné 10 points pour la moitié de l'article.");
+      } else if (!newProgress[id].finished) {
+        newProgress[id].finished = true;
+        addPoints(10, "Vous avez gagné 10 points pour avoir terminé l'article.");
+      }
+
+      return newProgress;
+    });
+  };
+
+  const handleAstuce = (id) => {
+    setProgress((prevProgress) => {
+      const newProgress = { ...prevProgress };
+      if (!newProgress[id]) {
+        newProgress[id] = { count: 0 };
+      }
+
+      if (newProgress[id].count < 3) {
+        newProgress[id].count += 1;
+        addPoints(10, "Vous avez gagné 10 points pour cette astuce.");
+      }
+
+      return newProgress;
+    });
+  };
+
+  const handleVideo = (id) => {
+    setProgress((prevProgress) => {
+      const newProgress = { ...prevProgress };
+      if (!newProgress[id]) {
+        newProgress[id] = { watched: false };
+      }
+
+      if (!newProgress[id].watched) {
+        newProgress[id].watched = true;
+        addPoints(50, "Vous avez gagné 50 points pour avoir regardé la vidéo.");
+      }
+
+      return newProgress;
+    });
+  };
 
   const renderActiveComponent = () => {
     switch (activeComponent) {
       case 'Component1':
-        return <PourVous data={data} />;
+        return <PourVous data={data} onCardPress={handleCardPress} />;
       case 'Component2':
-        return <Articles data={data.filter(item => item.category === 'Article')} />;
+        return <Articles data={data.filter(item => item.category === 'Article')} onCardPress={handleCardPress} />;
       case 'Component3':
-        return <Astuces data={data.filter(item => item.category === 'Astuces')} />;
+        return <Astuces data={data.filter(item => item.category === 'Astuces')} onCardPress={handleCardPress} />;
       case 'Component4':
-        return <Exercices data={data.filter(item => item.category === 'Exercices')} />;
+        return <Exercices data={data.filter(item => item.category === 'Exercices')} onCardPress={handleCardPress} />;
       default:
-        return <PourVous data={data} />;
+        return <PourVous data={data} onCardPress={handleCardPress} />;
+    }
+  };
+
+  const handleCardPress = (id, category) => {
+    switch (category) {
+      case 'Article':
+        handleArticleReading(id);
+        break;
+      case 'Astuces':
+        handleAstuce(id);
+        break;
+      case 'Exercices':
+        handleVideo(id);
+        break;
+      default:
+        break;
     }
   };
 
@@ -188,40 +257,36 @@ const HeartScreen = ({ navigation, route }) => {
           style={[styles.navButtonContainer, activeComponent === 'Component1' && styles.activeButton]} 
           onPress={() => setActiveComponent('Component1')}
         >
-        {  activeComponent === 'Component1'? <Text style={styles.navButtonTexte}>Pour Vous</Text>: <Text style={styles.navButtonText}>Pour Vous</Text>}
+          <Text style={activeComponent === 'Component1' ? styles.navButtonTexte : styles.navButtonText}>Pour Vous</Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.navButtonContainer, activeComponent === 'Component2' && styles.activeButton]} 
           onPress={() => setActiveComponent('Component2')}
         >
-        {  activeComponent === 'Component2'? <Text style={styles.navButtonTexte}>Articles</Text>: <Text style={styles.navButtonText}>Articles</Text>}
-
-      
+          <Text style={activeComponent === 'Component2' ? styles.navButtonTexte : styles.navButtonText}>Articles</Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.navButtonContainer, activeComponent === 'Component3' && styles.activeButton]} 
           onPress={() => setActiveComponent('Component3')}
         > 
-        {  activeComponent === 'Component3'? <Text style={styles.navButtonTexte}>Astuces</Text>: <Text style={styles.navButtonText}>Astuces</Text>}
-
-          
+          <Text style={activeComponent === 'Component3' ? styles.navButtonTexte : styles.navButtonText}>Astuces</Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.navButtonContainer, activeComponent === 'Component4' && styles.activeButton]} 
           onPress={() => setActiveComponent('Component4')}
         >
-        {  activeComponent === 'Component4'? <Text style={styles.navButtonTexte}>Exercices</Text>: <Text style={styles.navButtonText}>Exercices</Text>}
-
-          
+          <Text style={activeComponent === 'Component4' ? styles.navButtonTexte : styles.navButtonText}>Exercices</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.content}>
         {renderActiveComponent()}
       </View>
-      <BottomNavBar navigation={navigation} currentScreen={currentScreen}  />
+      <BottomNavBar navigation={navigation} currentScreen={currentScreen} />
     </View>
   );
 };
+
+
 const { width } = Dimensions.get('window');
 const styles = StyleSheet.create({
   container: {
