@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-const Sidebar = () => {
+const Sidebar = ({ setFilter,toggleSidebar }) => {
     const navigation = useNavigation();
 
     return (
@@ -24,21 +24,29 @@ const Sidebar = () => {
                 <Text style={styles.menuText}>Mois</Text>
             </TouchableOpacity>
             <Text style={styles.filterHeader}>Filtrer par</Text>
-            <TouchableOpacity style={styles.filterItem} onPress={() => navigation.navigate('Settings')}>
+            <TouchableOpacity style={styles.filterItem} onPress={() => {setFilter('All'); toggleSidebar()} }>
                 <Image source={require('../assets/home/add.png')} style={styles.logo} />
-                <Text style={styles.filterText}>Cours</Text>
+                <Text style={styles.filterText}>Tout</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.filterItem} onPress={() => navigation.navigate('Settings')}>
+            <TouchableOpacity style={styles.filterItem} onPress={() =>{ setFilter('Education'); toggleSidebar()}}>
+                <Image source={require('../assets/home/add.png')} style={styles.logo} />
+                <Text style={styles.filterText}>Education</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.filterItem} onPress={() => {setFilter('Taches') ; toggleSidebar()}}>
                 <Image source={require('../assets/home/add.png')} style={styles.logo} />
                 <Text style={styles.filterText}>Taches</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.filterItem} onPress={() => navigation.navigate('Settings')}>
+            <TouchableOpacity style={styles.filterItem} onPress={() => {setFilter('Evenements'); toggleSidebar()}}>
                 <Image source={require('../assets/home/add.png')} style={styles.logo} />
                 <Text style={styles.filterText}>Evenements</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.filterItem} onPress={() => navigation.navigate('Settings')}>
+            <TouchableOpacity style={styles.filterItem} onPress={() => {setFilter('Objectif'); toggleSidebar()}}>
                 <Image source={require('../assets/home/add.png')} style={styles.logo} />
                 <Text style={styles.filterText}>Objectif</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.filterItem} onPress={() => {setFilter('Holidays'); toggleSidebar()}}>
+                <Image source={require('../assets/home/add.png')} style={styles.logo} />
+                <Text style={styles.filterText}>Vacances</Text>
             </TouchableOpacity>
         </View>
     );

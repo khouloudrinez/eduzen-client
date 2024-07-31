@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { View, Text, StyleSheet, TextInput, Alert, TouchableOpacity, Switch } from "react-native";
 import DateTimePicker from '@react-native-community/datetimepicker';
-import axios from 'axios';
-import { API_URL } from '@env';
+import { UserContext } from './UserContext';
 import { MaterialIcons } from '@expo/vector-icons'; // Import MaterialIcons
 
 const Detail = ({ route, navigation }) => {
@@ -13,7 +12,7 @@ const Detail = ({ route, navigation }) => {
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [name, setName] = useState('');
   const [isAllDay, setIsAllDay] = useState(false);
-
+  const { user, addTask, updateTask } = useContext(UserContext);
   const handleDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
     setShowDatePicker(false);
@@ -26,27 +25,22 @@ const Detail = ({ route, navigation }) => {
     setTime(currentTime);
   };
 
-  const handleSubmit = async () => {
-    try {
-      // const response = await axios.post(`${API_URL}/api/alls/create`, {
-       
-      //   dateOf: date,
-      //   nameOf: name,
-      //   timeOf: time,
-      //   categorieOf: section,
-      //   typeOf: item.text,
-      // });
 
-      if (response.status === 201) {
+  
+      const handleAddTask = () => {
+        const newTask = {
+          nameOfTask:name,
+          typeOf: item.text,
+          categorieOf: section,
+          date: date,
+          hour: time,
+        };
+        addTask(newTask);
         Alert.alert('Success', 'Élément ajouté au calendrier');
         navigation.navigate('Home');
-      } else {
-        Alert.alert('Error', "Quelque chose s'est mal passé");
-      }
-    } catch (error) {
-      Alert.alert('Error', error.response?.data?.message || "Échec de l'ajout de l'élément au calendrier");
-    }
-  };
+      };
+
+      
 
   return (
     <View style={styles.container}>
@@ -86,7 +80,7 @@ const Detail = ({ route, navigation }) => {
           onValueChange={setIsAllDay}
         />
       </View>
-      <TouchableOpacity onPress={handleSubmit} style={styles.submitButton}>
+      <TouchableOpacity onPress={handleAddTask} style={styles.submitButton}>
         <Text style={styles.submitButtonText}>Enregistrer</Text>
       </TouchableOpacity>
       

@@ -13,11 +13,10 @@ import {
 
 } from "react-native";
 import BottomNavBar from "../components/BottomNavBar";
-import UpperNavBar from "../components/UpperNavBar";
+
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import axios from "axios";
-import { API_URL } from "@env";
+import moment from 'moment';
 import { useFocusEffect } from "@react-navigation/native";
 import { UserContext } from "./UserContext";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -27,8 +26,8 @@ const HomeScreen = ({ navigation, route }) => {
   const currentScreen = route.name;
   const { user } = useContext(UserContext);
  
- 
-  const [events, setEvents] = useState([]);
+
+  const [events, setEvents] = useState(user.tasks);
   const [todaysDate, setTodaysDate] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [popupShown, setPopupShown] = useState(false);
@@ -40,6 +39,7 @@ const HomeScreen = ({ navigation, route }) => {
         const { firstName, lastName } = route.params.user;
         setInitials(`${firstName[0]}${lastName[0]}`);
         setUserName(`${firstName} ${lastName}`);
+        setEvents(user.tasks)
       }
     }, [route.params?.user])
   );
@@ -47,6 +47,7 @@ const HomeScreen = ({ navigation, route }) => {
     const today = new Date();
     const formattedDate = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`;
     setTodaysDate(formattedDate);
+   
   }, []);
 
 
@@ -77,14 +78,17 @@ const HomeScreen = ({ navigation, route }) => {
   };
 
   const renderEvent = ({ item }) => {
-    const eventTime = new Date(item.timeOf);
+    const eventTime = new Date(item.hour);
     const hours = eventTime.getHours();
     const minutes = eventTime.getMinutes().toString().padStart(2, '0');
     return (
       <Text style={styles.timeSlot}>
-        {`${hours}:${minutes} - ${item.nameOf}`}
+        {`${hours}:${minutes} - ${item.nameOfTask}`}
       </Text>
     );
+  };
+  const extractTime = (dateString) => {
+    return moment(dateString).format('HH:mm');
   };
   const articles = [
     {
@@ -110,10 +114,35 @@ const HomeScreen = ({ navigation, route }) => {
     },
   ];
 
-  const rewards = [
-    // your rewards array
+  const timeSlots = [
+    '08:00', '09:00', '10:00', '11:00', '12:00',
+    '13:00', '14:00', '15:00', '16:00', '17:00',
   ];
-
+  const getEventForTimeSlot = (timeSlot) => {
+    const [hours] = timeSlot.split(':');
+  
+    // Get today's date
+    const today = new Date();
+    const todayDateString = today.toISOString().split('T')[0]; // Get date part in YYYY-MM-DD format
+  
+    let events = user.tasks;
+  
+    // Filter tasks to include only today's tasks
+    const todaysTasks = events.filter(event => {
+      const eventDate = new Date(event.date).toISOString().split('T')[0];
+      return eventDate === todayDateString;
+    });
+  
+    console.log('Today\'s tasks', todaysTasks);
+  
+    // Find the event for the specific time slot
+    return todaysTasks.find(event => {
+      const eventTime = new Date(event.hour);
+      console.log(eventTime);
+      return eventTime.getHours() === parseInt(hours);
+    });
+  };
+  
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#F5F5F5" />
@@ -148,28 +177,26 @@ const HomeScreen = ({ navigation, route }) => {
           </View>
         </View>
         <View style={styles.content}>
-          <Text style={styles.greeting}>
-            Bonjour, {`${user?.firstName ?? ""} ${user?.lastName ?? ""}`}
-          </Text>
-          <View style={styles.timeSlots}>
-          {events.length > 0 ? (
-  events.map((event, index) => {
-    const eventTime = new Date(event.timeOf);
-    const hours = eventTime.getHours();
-    const minutes = eventTime.getMinutes().toString().padStart(2, '0');
-    return (
-      <Text key={index} style={styles.timeSlot}>
-        {`${hours}:${minutes} - ${event.nameOf}`}
+      <Text style={styles.greeting}>
+        Bonjour, {`${user?.firstName ?? ""} ${user?.lastName ?? ""}`}
+   
       </Text>
-    );
-  })
-) : (
-              <Text style={styles.timeSlot}>
-                Aucun événement prévu pour aujourd'hui
-              </Text>
-            )}
-          </View>
-          <View style={styles.row}>
+      <View style={styles.timeSlots}>
+        {timeSlots.map((timeSlot, index) => {
+          const event = getEventForTimeSlot(timeSlot);
+          return (
+            <View key={index} style={styles.timeSlot}>
+              <Text style={styles.time}>{timeSlot}</Text>
+              {event ? (
+                <Text style={styles.event}>{event.nameOfTask}</Text>
+              ) : (
+                <Text style={styles.noEvent}></Text>
+              )}
+            </View>
+          );
+        })}
+      </View>
+        <View style={styles.row}>
             <Text style={styles.date}>{todaysDate}</Text>
             <TouchableOpacity style={styles.openButton}>
               <Text onPress={() => setModalVisible(true)} style={styles.openButtonText}>Ouvrir</Text>
@@ -187,9 +214,9 @@ const HomeScreen = ({ navigation, route }) => {
               <Text style={styles.modalTitle}>
                 Evénements pour le {todaysDate}
               </Text>
-              {events.length > 0 ? (
+              {user.tasks.length > 0 ? (
               <FlatList
-                data={events}
+                data={user.tasks}
                 renderItem={renderEvent}
                 keyExtractor={(item, index) =>
                   item._id?.toString() ?? `fallback-${index}`
@@ -216,6 +243,8 @@ const HomeScreen = ({ navigation, route }) => {
             </View>
           </View>
         </Modal>
+        {user.tasks.length===0 ?(
+          <TouchableOpacity onPress={() => navigation.navigate("Add")}>
         <View style={styles.nextTask}>
           <View style={styles.taskHeader}>
             <Text style={styles.nextTaskTitle}>Prochaine tâche</Text>
@@ -226,6 +255,19 @@ const HomeScreen = ({ navigation, route }) => {
           Ajoute tes tâches et prends le contrôle de ton temps
           </Text>
         </View>
+        </TouchableOpacity>):(
+        <View style={styles.nextTask}>
+          <View style={styles.taskHeader}>
+          <Text style={styles.nextTaskTitle}>Prochaine tâche</Text>
+       
+
+          <Text style={styles.nextTaskTime}>{extractTime(user.tasks[0].hour)}</Text>
+     
+          </View>
+       
+     <Text style={styles.nextTaskActivity}>{user.tasks[0].typeOf  }  :   {  user.tasks[0].nameOfTask}</Text>
+      </View>)
+      }
         <View style={styles.container1}>
           <View style={styles.objectives}>
             <MaterialIcons
@@ -361,23 +403,44 @@ pointsContainer: {
     color: "#757575",
   },
   content: {
-    backgroundColor: "#FFFFFF",
-    padding: 20,
+    backgroundColor: '#FFF',
     borderRadius: 10,
-    marginBottom: 20,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
   },
   greeting: {
-    fontSize: 20,
-    fontWeight: "bold",
+    fontSize: 18,
+    fontWeight: 'bold',
     marginBottom: 20,
+    color: '#000',
   },
   timeSlots: {
+    flex: 1,
     marginBottom: 20,
   },
   timeSlot: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEE',
+  },
+  time: {
     fontSize: 16,
-    color: "#9E9E9E",
-    marginBottom: 5,
+    color: 'gray',
+  },
+  event: {
+    fontSize: 16,
+    color: '#000',
+  },
+  noEvent: {
+    fontSize: 16,
+    color: '#AAA',
   },
   row: {
     flexDirection: "row",
@@ -445,6 +508,7 @@ pointsContainer: {
     padding: 20,
     borderRadius: 10,
     marginBottom: 20,
+    marginTop:20
   },
   taskHeader: {
     flexDirection: "row",
