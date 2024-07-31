@@ -1,5 +1,5 @@
-// UserContext.js
 import React, { createContext, useState } from 'react';
+import { Alert } from "react-native";
 
 export const UserContext = createContext();
 
@@ -18,6 +18,8 @@ export const UserProvider = ({ children }) => {
     school: '',
     dateOfBirth: '',
     gender: '',
+    points: 100,
+    earnedPoints: {}
   });
 
   const updateUser = (newUserData) => {
@@ -28,8 +30,48 @@ export const UserProvider = ({ children }) => {
     }));
   };
 
+  const addPoints = (itemId, category, newPoints, message) => {
+    setUser((prevUser) => {
+      const updatedEarnedPoints = { ...prevUser.earnedPoints };
+      const currentPoints = updatedEarnedPoints[itemId] || { Article: 0, Astuces: 0, Exercices: false };
+
+      if (category === 'Article') {
+        if (currentPoints.Article < 20) {
+          const pointsToAdd = newPoints;
+          updatedEarnedPoints[itemId] = { ...currentPoints, Article: Math.min(currentPoints.Article + pointsToAdd, 20) };
+          return {
+            ...prevUser,
+            points: prevUser.points + (updatedEarnedPoints[itemId].Article - currentPoints.Article),
+            earnedPoints: updatedEarnedPoints,
+          };
+        }
+      } else if (category === 'Astuces') {
+        const totalPoints = Math.min(currentPoints.Astuces + newPoints, 30);
+        if (totalPoints > currentPoints.Astuces) {
+          updatedEarnedPoints[itemId] = { ...currentPoints, Astuces: totalPoints };
+          return {
+            ...prevUser,
+            points: prevUser.points + (totalPoints - currentPoints.Astuces),
+            earnedPoints: updatedEarnedPoints,
+          };
+        }
+      } else if (category === 'Exercices') {
+        if (!currentPoints.Exercices) {
+          updatedEarnedPoints[itemId] = { ...currentPoints, Exercices: true };
+          return {
+            ...prevUser,
+            points: prevUser.points + newPoints,
+            earnedPoints: updatedEarnedPoints,
+          };
+        }
+      }
+      return prevUser;
+    });
+    Alert.alert("Félicitations", message);
+  };
+
   return (
-    <UserContext.Provider value={{ user, updateUser }}>
+    <UserContext.Provider value={{ user, updateUser, addPoints }}>
       {children}
     </UserContext.Provider>
   );
