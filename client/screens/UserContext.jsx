@@ -18,6 +18,7 @@ export const UserProvider = ({ children }) => {
     school: '',
     dateOfBirth: '',
     gender: '',
+    tasks: [],
   });
 
   const updateUser = (newUserData) => {
@@ -27,9 +28,26 @@ export const UserProvider = ({ children }) => {
       initials: `${newUserData.firstName[0]}${newUserData.lastName[0]}`,
     }));
   };
+  const addTask = (newTask) => {
+    setUser((prevUser) => ({
+      ...prevUser,
+      tasks: [...prevUser.tasks, newTask],
+    }));
+  };
 
+  const updateTask = (taskIndex, updatedTask) => {
+    setUser((prevUser) => {
+      const updatedTasks = prevUser.tasks.map((task, index) =>
+        index === taskIndex ? { ...task, ...updatedTask } : task
+      );
+      return {
+        ...prevUser,
+        tasks: updatedTasks,
+      };
+    });
+  };
   return (
-    <UserContext.Provider value={{ user, updateUser }}>
+    <UserContext.Provider value={{ user, updateUser, addTask, updateTask }}>
       {children}
     </UserContext.Provider>
   );
