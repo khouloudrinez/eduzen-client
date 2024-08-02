@@ -55,7 +55,7 @@ const Sidebar = ({ setFilter,toggleSidebar }) => {
 const styles = StyleSheet.create({
     sidebarContainer: {
         width: 250,
-        backgroundColor: '#f2f2f2', // Light grey background color
+        backgroundColor: '#f2f2f2',
         paddingVertical: 20,
         paddingHorizontal: 10,
     },
