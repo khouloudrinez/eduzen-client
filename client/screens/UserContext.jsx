@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 import { Alert } from "react-native";
 
 export const UserContext = createContext();
@@ -23,6 +23,13 @@ export const UserProvider = ({ children }) => {
     earnedPoints: {}
   });
 
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      removePastTasks();
+    }, 60000); // Check every minute
+
+    return () => clearInterval(intervalId);
+  }, []);
   const updateUser = (newUserData) => {
     setUser((prevUser) => ({
       ...prevUser,
@@ -70,11 +77,27 @@ export const UserProvider = ({ children }) => {
     });
     Alert.alert("Félicitations", message);
   };
-  const addTask = (newTask) => {
+  const removePastTasks = () => {
+    const currentTime = new Date();
     setUser((prevUser) => ({
       ...prevUser,
-      tasks: [...prevUser.tasks, newTask],
+      tasks: prevUser.tasks.filter(task => {
+        const taskDueDate = new Date(task.hour);
+        return taskDueDate > new Date(currentTime.getTime() - 10 * 60000); // 10 minutes buffer
+      }),
     }));
+  };
+  const addTask = (newTask) => {
+    removePastTasks();
+    
+    setUser((prevUser) => {
+      const updatedTasks = [...prevUser.tasks, newTask].sort((a, b) => new Date(a.date) - new Date(b.date));
+      
+      return {
+        ...prevUser,
+        tasks: updatedTasks,
+      };
+    });
   };
   return (
     <UserContext.Provider value={{ user, updateUser, addPoints,addTask }}>

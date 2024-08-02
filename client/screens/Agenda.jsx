@@ -224,7 +224,7 @@ const CalendarScreen = ({ navigation, route }) => {
     console.log("Searching for:", query);
     // Implement search logic here
   };
-
+  
   return (
     <TouchableWithoutFeedback onPress={() => { closeSidebar(); closeRightSidebar(); }}>
       <View style={styles.container}>
