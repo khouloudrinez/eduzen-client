@@ -1,5 +1,5 @@
-import React, { useContext  } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Image ,Linking, Dimensions } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Image, Linking, Dimensions } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
@@ -8,17 +8,115 @@ import BottomNavBar from '../components/BottomNavBar';
 import { UserContext } from "./UserContext";
 import { BlurView } from 'expo-blur';
 
+const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/ds4outzra/image/upload';
+const CLOUDINARY_UPLOAD_PRESET = 'r0xpswmo';
 
 const MyProfile = ({ navigation, route }) => {
   const currentScreen = route.name;
-  const { user } = useContext(UserContext);
+  const { user, updateUser } = useContext(UserContext);
+  const [updatedUser, setUpdatedUser] = useState(user);
 
+  const showAlert = () => {
+    Alert.alert('Information', 'Bientôt disponible');
+  };
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+  
+    if (!result.canceled) {
+      const uri = result.assets[0].uri; // Adjusting to correct the URI path
+   
+      uploadImage(uri);
+    }
+  };
+  
+  const takePhoto = async () => {
+    let result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+  
+    if (!result.canceled) {
+      const uri = result.assets[0].uri; // Adjusting to correct the URI path
+  
+      uploadImage(uri);
+    }
+  };
+  
+  const uploadImage = async (uri) => {
+    // Log the URI
 
+  
+    const formData = new FormData();
+    formData.append('file', {
+      uri: uri,
+      type: 'image/jpeg', // Ensure the type is correct
+      name: 'upload.jpg',
+    });
+    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+  
+    // Log FormData manually
+
+    for (let [key, value] of formData._parts) {
+   
+    }
+  
+    try {
+      const response = await fetch(CLOUDINARY_URL, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json', // Include Accept header
+        },
+      });
+  
+      // Log the response status
+    
+  
+      const data = await response.json();
  
+  
+      if (response.ok) {
+        const imageUrl = data.secure_url;
+        setUpdatedUser({ ...updatedUser, profileImage: imageUrl });
+        updateUser({ ...user, profileImage: imageUrl });
+        Alert.alert('information','telechargement réussi !')
+      } else {
+        console.error('Error uploading image to Cloudinary:', data);
+      }
+    } catch (error) {
+      console.error('Error uploading image to Cloudinary:', error);
 
-  // const formattedBirthDate = user.birthDate.slice(0, 10);
+    }
+  };
+   
 
-
+  const handleProfilePicturePress = () => {
+    Alert.alert(
+      'Changer de photo de profil',
+      'Choisissez une option',
+      [
+        {
+          text: 'Prendre une photo',
+          onPress: takePhoto,
+        },
+        {
+          text: 'Choisir depuis la galerie',
+          onPress: pickImage,
+        },
+        {
+          text: 'Annuler',
+          style: 'cancel',
+        },
+      ],
+      { cancelable: true }
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -30,8 +128,15 @@ const MyProfile = ({ navigation, route }) => {
       </View>
       <View style={styles.profileContainer}>
         <View style={styles.profileDetails}>
-        <TouchableOpacity style={styles.profilePicturePlaceholder}>
-            <Text style={styles.profilePictureText}>{user.initials}</Text>
+          <TouchableOpacity
+            style={styles.profilePicturePlaceholder}
+            onPress={handleProfilePicturePress}
+          >
+            {updatedUser.profileImage ? (
+              <Image source={{ uri: updatedUser.profileImage }} style={styles.profileImage} />
+            ) : (
+              <Text style={styles.profilePictureText}>{user.initials}</Text>
+            )}
           </TouchableOpacity>
           <View style={styles.profileInfo}>
             <Text style={styles.profileName}>{`${user.firstName} ${user.lastName}`}</Text>
@@ -43,50 +148,46 @@ const MyProfile = ({ navigation, route }) => {
         </View>
         <Text style={styles.sectionTitle}>Menu</Text>
         <View style={styles.menuContainer}>
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={showAlert}>
             <Text style={styles.menuText}>Paramètres</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
-            <Text style={styles.menuText}>Inviter un(e) ami(e) </Text>
+          <TouchableOpacity style={styles.menuItem} onPress={showAlert}>
+            <Text style={styles.menuText}>Inviter un(e) ami(e)</Text>
             <View style={styles.badge}>
               <Text style={styles.badgeText}>100</Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity
-    style={styles.menuItem}
-    onPress={() => Linking.openURL('https://edu-zen.com/')}
-  >
-    <Text style={styles.menuText}>À propos de EduZen</Text>
-  </TouchableOpacity>
+            style={styles.menuItem}
+            onPress={() => Linking.openURL('https://edu-zen.com/')}
+          >
+            <Text style={styles.menuText}>À propos de EduZen</Text>
+          </TouchableOpacity>
         </View>
         <Text style={styles.sectionTitle}>Détails du compte</Text>
         <View style={styles.blurContainer}>
-  <BlurView
-    style={styles.blurView}
-    intensity={100}
-    tint="light"
-  >
-    <View style={styles.accountDetailsInner}>
-      <TouchableOpacity style={styles.accountItem}>
-        <Text style={styles.accountText}>Wallet</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.accountItem}>
-        <Text style={styles.accountText}>Zed bot (AI)</Text>
-        <View style={styles.premiumBadgeContainer}>
-          <Text style={styles.premiumBadgeText}>Premium</Text>
+          <BlurView style={styles.blurView} intensity={100} tint="light">
+            <View style={styles.accountDetailsInner}>
+              <TouchableOpacity style={styles.accountItem} onPress={showAlert}>
+                <Text style={styles.accountText}>Wallet</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.accountItem} onPress={showAlert}>
+                <Text style={styles.accountText}>Zed bot (AI)</Text>
+                <View style={styles.premiumBadgeContainer}>
+                  <Text style={styles.premiumBadgeText}>Premium</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.accountItem} onPress={showAlert}>
+                <Text style={styles.accountText}>Coaching</Text>
+                <View style={styles.premiumBadgeContainer}>
+                  <Text style={styles.premiumBadgeText}>Premium</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </BlurView>
         </View>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.accountItem}>
-        <Text style={styles.accountText}>Coaching</Text>
-        <View style={styles.premiumBadgeContainer}>
-          <Text style={styles.premiumBadgeText}>Premium</Text>
-        </View>
-      </TouchableOpacity>
-    </View>
-  </BlurView>
-</View>
       </View>
-      <BottomNavBar navigation={navigation} currentScreen={currentScreen}  />
+      <BottomNavBar navigation={navigation} currentScreen={currentScreen} />
     </View>
   );
 };
@@ -128,6 +229,11 @@ const styles = StyleSheet.create({
   profilePictureText: {
     fontSize: 24,
     color: '#4A4A4A',
+  },
+  profileImage: {
+    width: 70,
+    height: 70,
+    borderRadius: 30,
   },
   profileInfo: {
     flex: 1,

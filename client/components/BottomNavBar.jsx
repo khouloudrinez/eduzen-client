@@ -95,6 +95,8 @@ const styles = StyleSheet.create({
         resizeMode: 'contain',
     },
     activeIcon: {
+  
+
         tintColor: '#FFFFFF',
     },
 });
