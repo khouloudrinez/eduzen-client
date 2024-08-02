@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 import { Alert } from "react-native";
 
 export const UserContext = createContext();
@@ -26,6 +26,15 @@ export const UserProvider = ({ children }) => {
     pointsAdded: {}, // Track points added for each item
   });
 
+ 
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      removePastTasks();
+    }, 60000); // Check every minute
+
+    return () => clearInterval(intervalId);
+  }, []);
   const updateUser = (newUserData) => {
     setUser((prevUser) => ({
       ...prevUser,

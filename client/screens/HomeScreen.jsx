@@ -9,29 +9,26 @@ import {
   Image,
   Dimensions,
   Modal,
-  FlatList
-
+  FlatList,
 } from "react-native";
 import BottomNavBar from "../components/BottomNavBar";
 
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import moment from 'moment';
+import moment from "moment";
 import { useFocusEffect } from "@react-navigation/native";
 import { UserContext } from "./UserContext";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Bubble from "./Bubble";
 
 const HomeScreen = ({ navigation, route }) => {
   const currentScreen = route.name;
   const { user } = useContext(UserContext);
- 
 
   const [events, setEvents] = useState(user.tasks);
   const [todaysDate, setTodaysDate] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [popupShown, setPopupShown] = useState(false);
-
 
   useFocusEffect(
     React.useCallback(() => {
@@ -39,48 +36,48 @@ const HomeScreen = ({ navigation, route }) => {
         const { firstName, lastName } = route.params.user;
         setInitials(`${firstName[0]}${lastName[0]}`);
         setUserName(`${firstName} ${lastName}`);
-        setEvents(user.tasks)
+        setEvents(user.tasks);
       }
     }, [route.params?.user])
   );
   useEffect(() => {
     const today = new Date();
-    const formattedDate = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`;
+    const formattedDate = `${today.getDate().toString().padStart(2, "0")}/${(
+      today.getMonth() + 1
+    )
+      .toString()
+      .padStart(2, "0")}/${today.getFullYear()}`;
     setTodaysDate(formattedDate);
-   
   }, []);
-
 
   useEffect(() => {
     const showWelcomePopup = async () => {
       try {
-        const hasShownPopup = await AsyncStorage.getItem('popupShown');
-        console.log('Popup status:', hasShownPopup); // Check value
+        const hasShownPopup = await AsyncStorage.getItem("popupShown");
+        // Check value
         if (hasShownPopup === null) {
           setPopupShown(true);
-          await AsyncStorage.setItem('popupShown', 'true');
+          await AsyncStorage.setItem("popupShown", "true");
           // await AsyncStorage.clear()
         } else {
           setPopupShown(false); // Ensure it's hidden if already shown
         }
       } catch (error) {
-        console.error('Failed to check popup status', error);
+        console.error("Failed to check popup status", error);
       }
     };
-  
+
     showWelcomePopup();
   }, []);
-  
 
   const handleCloseBubble = () => {
-    console.log('Bubble closed');
     setPopupShown(false);
   };
 
   const renderEvent = ({ item }) => {
     const eventTime = new Date(item.hour);
     const hours = eventTime.getHours();
-    const minutes = eventTime.getMinutes().toString().padStart(2, '0');
+    const minutes = eventTime.getMinutes().toString().padStart(2, "0");
     return (
       <Text style={styles.timeSlot}>
         {`${hours}:${minutes} - ${item.nameOfTask}`}
@@ -88,7 +85,7 @@ const HomeScreen = ({ navigation, route }) => {
     );
   };
   const extractTime = (dateString) => {
-    return moment(dateString).format('HH:mm');
+    return moment(dateString).format("HH:mm");
   };
   const articles = [
     {
@@ -115,91 +112,109 @@ const HomeScreen = ({ navigation, route }) => {
   ];
 
   const timeSlots = [
-    '08:00', '09:00', '10:00', '11:00', '12:00',
-    '13:00', '14:00', '15:00', '16:00', '17:00',
+    "08:00",
+    "09:00",
+    "10:00",
+    "11:00",
+    "12:00",
+    "13:00",
+    "14:00",
+    "15:00",
+    "16:00",
+    "17:00",
   ];
   const getEventForTimeSlot = (timeSlot) => {
-    const [hours] = timeSlot.split(':');
-  
+    const [hours] = timeSlot.split(":");
+
     // Get today's date
     const today = new Date();
-    const todayDateString = today.toISOString().split('T')[0]; // Get date part in YYYY-MM-DD format
-  
+    const todayDateString = today.toISOString().split("T")[0]; // Get date part in YYYY-MM-DD format
+
     let events = user.tasks;
-  
+
     // Filter tasks to include only today's tasks
-    const todaysTasks = events.filter(event => {
-      const eventDate = new Date(event.date).toISOString().split('T')[0];
+    const todaysTasks = events.filter((event) => {
+      const eventDate = new Date(event.date).toISOString().split("T")[0];
       return eventDate === todayDateString;
     });
-  
-    // console.log('Today\'s tasks', todaysTasks);
-  
+
     // Find the event for the specific time slot
-    return todaysTasks.find(event => {
+    return todaysTasks.find((event) => {
       const eventTime = new Date(event.hour);
-      console.log(eventTime);
+
       return eventTime.getHours() === parseInt(hours);
     });
   };
-  
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#F5F5F5" />
-      
+
       <ScrollView contentContainerStyle={styles.mainContent}>
         <View style={styles.header1}>
           <Text style={styles.headerTitle1}>Aujourd'hui</Text>
           <View style={styles.header}>
-          <LinearGradient
-                    colors={['#3A98F5', '#00E9B8']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.pointsContainer}
-                >
-                    <Text style={styles.points}>{user.points}</Text>
-                </LinearGradient>
-                
-                {popupShown && (
-              <Bubble 
-                message="Félicitations! Tu as gagné 100 points de bienvenue!" 
-                onClose={handleCloseBubble} 
+            <LinearGradient
+              colors={["#3A98F5", "#00E9B8"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.pointsContainer}
+            >
+              <Text style={styles.points}>{user.points}</Text>
+            </LinearGradient>
+
+            {popupShown && (
+              <Bubble
+                message="Félicitations! Tu as gagné 100 points de bienvenue!"
+                onClose={handleCloseBubble}
               />
             )}
-                <TouchableOpacity
-            style={styles.idContainer}
-            onPress={() => navigation.navigate("MyProfile")}
-          >
-            <Text style={styles.idText}>{user.initials}</Text>
-          </TouchableOpacity>
-          
-            
+            <TouchableOpacity
+              style={styles.idContainer}
+              onPress={() => navigation.navigate("MyProfile")}
+            >
+              {console.log(user)}
+              {user.profileImage ? (
+                <Image
+                  source={{ uri: user.profileImage }}
+                  style={styles.profileImage}
+                />
+              ) : (
+                <View style={styles.profilete}>
+                  <Text style={styles.profilePictureText}>{user.initials}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
           </View>
         </View>
         <View style={styles.content}>
-      <Text style={styles.greeting}>
-        Bonjour, {`${user?.firstName ?? ""} ${user?.lastName ?? ""}`}
-   
-      </Text>
-      <View style={styles.timeSlots}>
-        {timeSlots.map((timeSlot, index) => {
-          const event = getEventForTimeSlot(timeSlot);
-          return (
-            <View key={index} style={styles.timeSlot}>
-              <Text style={styles.time}>{timeSlot}</Text>
-              {event ? (
-                <Text style={styles.event}>{event.nameOfTask}</Text>
-              ) : (
-                <Text style={styles.noEvent}></Text>
-              )}
-            </View>
-          );
-        })}
-      </View>
-        <View style={styles.row}>
+          <Text style={styles.greeting}>
+            Bonjour, {`${user?.firstName ?? ""} ${user?.lastName ?? ""}`}
+          </Text>
+          <View style={styles.timeSlots}>
+            {timeSlots.map((timeSlot, index) => {
+              const event = getEventForTimeSlot(timeSlot);
+              return (
+                <View key={index} style={styles.timeSlot}>
+                  <Text style={styles.time}>{timeSlot}</Text>
+                  {event ? (
+                    <Text style={styles.event}>{event.nameOfTask}</Text>
+                  ) : (
+                    <Text style={styles.noEvent}></Text>
+                  )}
+                </View>
+              );
+            })}
+          </View>
+          <View style={styles.row}>
             <Text style={styles.date}>{todaysDate}</Text>
             <TouchableOpacity style={styles.openButton}>
-              <Text onPress={() => setModalVisible(true)} style={styles.openButtonText}>Ouvrir</Text>
+              <Text
+                onPress={() => setModalVisible(true)}
+                style={styles.openButtonText}
+              >
+                Ouvrir
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -215,20 +230,22 @@ const HomeScreen = ({ navigation, route }) => {
                 Evénements pour le {todaysDate}
               </Text>
               {user.tasks.length > 0 ? (
-              <FlatList
-                data={user.tasks}
-                renderItem={renderEvent}
-                keyExtractor={(item, index) =>
-                  item._id?.toString() ?? `fallback-${index}`
-                }
-                contentContainerStyle={styles.listContainer}
-              />
-            ) : (
-              <Text style={styles.noEventText}>Pas d'activités prévus pour aujourd'hui</Text>
-            )}
+                <FlatList
+                  data={user.tasks}
+                  renderItem={renderEvent}
+                  keyExtractor={(item, index) =>
+                    item._id?.toString() ?? `fallback-${index}`
+                  }
+                  contentContainerStyle={styles.listContainer}
+                />
+              ) : (
+                <Text style={styles.noEventText}>
+                  Pas d'activités prévus pour aujourd'hui
+                </Text>
+              )}
 
-                   <LinearGradient
-                colors={['#3A98F5', '#00E9B8']}
+              <LinearGradient
+                colors={["#3A98F5", "#00E9B8"]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.closeButtonContainer}
@@ -243,31 +260,35 @@ const HomeScreen = ({ navigation, route }) => {
             </View>
           </View>
         </Modal>
-        {user.tasks.length===0 ?(
+        {user.tasks.length === 0 ? (
           <TouchableOpacity onPress={() => navigation.navigate("Add")}>
-        <View style={styles.nextTask}>
-          <View style={styles.taskHeader}>
-            <Text style={styles.nextTaskTitle}>Prochaine tâche</Text>
-            <Text style={styles.nextTaskTime}></Text>
-          </View>
-          <Text style={styles.nextTaskActivity}>Choisir une activité</Text>
-          <Text style={styles.nextTaskDescription}>
-          Ajoute tes tâches et prends le contrôle de ton temps
-          </Text>
-        </View>
-        </TouchableOpacity>):(
-        <View style={styles.nextTask}>
-          <View style={styles.taskHeader}>
-          <Text style={styles.nextTaskTitle}>Prochaine tâche</Text>
-       
+            <View style={styles.nextTask}>
+              <View style={styles.taskHeader}>
+                <Text style={styles.nextTaskTitle}>Prochaine tâche</Text>
+                <Text style={styles.nextTaskTime}></Text>
+              </View>
+              <Text style={styles.nextTaskActivity}>Choisir une activité</Text>
+              <Text style={styles.nextTaskDescription}>
+                Ajoute tes tâches et prends le contrôle de ton temps
+              </Text>
+            </View>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.nextTask}>
+            <View style={styles.taskHeader}>
+              <Text style={styles.nextTaskTitle}>Prochaine tâche pour le </Text>
 
-          <Text style={styles.nextTaskTime}>{extractTime(user.tasks[0].hour)}</Text>
-     
+              <Text style={styles.nextTaskTitle}>
+                {user.tasks[0].date.toISOString().split("T")[0]} à{" "}
+                {extractTime(user.tasks[0].hour)}
+              </Text>
+            </View>
+
+            <Text style={styles.nextTaskActivity}>
+              {user.tasks[0].typeOf} : {user.tasks[0].nameOfTask}
+            </Text>
           </View>
-       
-     <Text style={styles.nextTaskActivity}>{user.tasks[0].typeOf  }  :   {  user.tasks[0].nameOfTask}</Text>
-      </View>)
-      }
+        )}
         <View style={styles.container1}>
           <View style={styles.objectives}>
             <MaterialIcons
@@ -278,10 +299,11 @@ const HomeScreen = ({ navigation, route }) => {
             />
             <View style={styles.content1}>
               <Text style={styles.objectivesTitle}>Mes objectifs</Text>
-              <Text style={styles.objectiveSubtitle}>Es-tu prêt(e) à relever de nouveaux défis et à atteindre tes objectifs ?</Text>
-              <Text style={styles.objectivesDescription}>
-               -
+              <Text style={styles.objectiveSubtitle}>
+                Es-tu prêt(e) à relever de nouveaux défis et à atteindre tes
+                objectifs ?
               </Text>
+              <Text style={styles.objectivesDescription}>-</Text>
             </View>
             <MaterialIcons
               name="chevron-right"
@@ -306,9 +328,8 @@ const HomeScreen = ({ navigation, route }) => {
         <View style={styles.wellbeing}>
           <Text style={styles.wellbeingTitle}>Votre espace bien-être</Text>
           <Text style={styles.wellbeingDescription}>
-            
-Collecte des points ZEN en apprenant à gérer ton temps efficacement et en faisant des exercices pour augmenter ta concentration. 
-
+            Collecte des points ZEN en apprenant à gérer ton temps efficacement
+            et en faisant des exercices pour augmenter ta concentration.
           </Text>
           <ScrollView horizontal={true} contentContainerStyle={styles.articles}>
             {articles.map((article, index) => (
@@ -323,37 +344,36 @@ Collecte des points ZEN en apprenant à gérer ton temps efficacement et en fais
           </ScrollView>
         </View>
         <View>
-  <LinearGradient
-    colors={["#3A98F5", "#00E9B8"]}
-    start={{ x: 0, y: 0 }}
-    end={{ x: 1, y: 1 }}
-    style={styles.cardContainerGradient}
-  >
-    <Image
-      source={require("../assets/home/EduZen Zed 01.png")}
-      style={styles.cardImage}
-    />
-    <View style={styles.cardContent}>
-      <View style={styles.textContent}>
-        <Text style={styles.cardTitle}>Soyez le premier à tester Zedbot</Text>
-        <Text style={styles.cardText}>
-          Bonjour ! Je suis Zedbot, votre compagnon IA pour le bien-être mental. Considérez-moi comme un assistant confidentiel, à l'écoute et offrant un soutien dans un espace sûr et sécurisé.
-        </Text>
-      </View>
-      <TouchableOpacity style={styles.cardButton}>
-        <Text style={styles.cardButtonText}>Discuter avec Zed</Text>
-      </TouchableOpacity>
-    </View>
-  </LinearGradient>
-</View>
-
+          <LinearGradient
+            colors={["#3A98F5", "#00E9B8"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.cardContainerGradient}
+          >
+            <Image
+              source={require("../assets/home/EduZen Zed 01.png")}
+              style={styles.cardImage}
+            />
+            <View style={styles.cardContent}>
+              <View style={styles.textContent}>
+                <Text style={styles.cardTitle}>
+                  Soyez le premier à tester Zedbot
+                </Text>
+                <Text style={styles.cardText}>
+                  Bonjour ! Je suis Zedbot, votre compagnon IA pour le bien-être
+                  mental. Considérez-moi comme un assistant confidentiel, à
+                  l'écoute et offrant un soutien dans un espace sûr et sécurisé.
+                </Text>
+              </View>
+              <TouchableOpacity style={styles.cardButton}>
+                <Text style={styles.cardButtonText}>Discuter avec Zed</Text>
+              </TouchableOpacity>
+            </View>
+          </LinearGradient>
+        </View>
       </ScrollView>
       <View style={styles.bottomNav}>
-        <BottomNavBar
-          navigation={navigation}
-          currentScreen={currentScreen}
-          
-        />
+        <BottomNavBar navigation={navigation} currentScreen={currentScreen} />
       </View>
     </View>
   );
@@ -378,24 +398,33 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
   },
+  profilePictureText: {
+    fontSize: 24,
+    color: "#4A4A4A",
+  },
+  profileImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 30,
+  },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-},
-pointsContainer: {
-  borderRadius: 20,
-  padding: 10,
-  marginRight: 10,
-},
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  pointsContainer: {
+    borderRadius: 20,
+    padding: 10,
+    marginRight: 10,
+  },
   pointsText: {
     fontSize: 18,
     color: "#00C853",
     marginRight: 10,
   },
   idContainer: {
-    backgroundColor: "#E0E0E0",
-    borderRadius: 20,
-    paddingHorizontal: 10,
+    // backgroundColor: "#E0E0E0",
+    borderRadius: 10,
+    paddingHorizontal: 5,
     paddingVertical: 5,
   },
   idText: {
@@ -403,10 +432,10 @@ pointsContainer: {
     color: "#757575",
   },
   content: {
-    backgroundColor: '#FFF',
+    backgroundColor: "#FFF",
     borderRadius: 10,
     padding: 20,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -414,33 +443,41 @@ pointsContainer: {
   },
   greeting: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
-    color: '#000',
+    color: "#000",
+  },
+  profilete: {
+    backgroundColor: "#E0E0E0",
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
   },
   timeSlots: {
     flex: 1,
     marginBottom: 20,
   },
   timeSlot: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#EEE',
+    borderBottomColor: "#EEE",
   },
   time: {
     fontSize: 16,
-    color: 'gray',
+    color: "gray",
   },
   event: {
     fontSize: 16,
-    color: '#000',
+    color: "#000",
   },
   noEvent: {
     fontSize: 16,
-    color: '#AAA',
+    color: "#AAA",
   },
   row: {
     flexDirection: "row",
@@ -450,7 +487,7 @@ pointsContainer: {
   },
   openButton: {
     padding: 10,
-    backgroundColor: '#3F3A64',
+    backgroundColor: "#3F3A64",
     borderRadius: 10,
   },
   openButtonText: {
@@ -464,58 +501,58 @@ pointsContainer: {
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalContent: {
-    width: '80%',
-    backgroundColor: 'white',
+    width: "80%",
+    backgroundColor: "white",
     padding: 20,
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
   },
   listContainer: {
-    width: '100%',
+    width: "100%",
   },
   noEventText: {
     fontSize: 16,
-    color: '#333',
-    textAlign: 'center',
+    color: "#333",
+    textAlign: "center",
     marginVertical: 20,
   },
   closeButtonContainer: {
-    width: '100%',
+    width: "100%",
     paddingVertical: 10,
     borderRadius: 10,
     marginTop: 20,
   },
   closeButton: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   closeButtonText: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   nextTask: {
     backgroundColor: "white",
     padding: 20,
     borderRadius: 10,
     marginBottom: 20,
-    marginTop:20
+    marginTop: 20,
   },
   taskHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
   },
   nextTaskTitle: {
-    fontSize: 17,
+    fontSize: 15,
     fontWeight: "bold",
   },
   nextTaskTime: {
@@ -655,8 +692,8 @@ pointsContainer: {
   },
   cardContent: {
     flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'space-between',
+    flexDirection: "column",
+    justifyContent: "space-between",
   },
   textContent: {
     flex: 1,
@@ -671,7 +708,7 @@ pointsContainer: {
     marginBottom: 20,
   },
   cardButton: {
-    left:-45,
+    left: -45,
     backgroundColor: "white",
     paddingVertical: 12,
     paddingHorizontal: 15,
@@ -686,12 +723,12 @@ pointsContainer: {
     marginBottom: 70,
   },
   cardButtonText: {
-    color: '#3A98F5',
+    color: "#3A98F5",
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     alignSelf: "center",
   },
-  
+
   rewardsContainer: {
     padding: 30,
     borderRadius: 10,
@@ -729,8 +766,5 @@ pointsContainer: {
     color: "#757575",
   },
 });
-
-
-
 
 export default HomeScreen;
