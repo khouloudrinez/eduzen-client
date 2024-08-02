@@ -133,7 +133,7 @@ const HomeScreen = ({ navigation, route }) => {
       return eventDate === todayDateString;
     });
   
-    console.log('Today\'s tasks', todaysTasks);
+    // console.log('Today\'s tasks', todaysTasks);
   
     // Find the event for the specific time slot
     return todaysTasks.find(event => {
@@ -157,7 +157,7 @@ const HomeScreen = ({ navigation, route }) => {
                     end={{ x: 1, y: 1 }}
                     style={styles.pointsContainer}
                 >
-                    <Text style={styles.points}>100</Text>
+                    <Text style={styles.points}>{user.points}</Text>
                 </LinearGradient>
                 
                 {popupShown && (

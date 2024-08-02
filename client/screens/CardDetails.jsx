@@ -7,44 +7,45 @@ const { width } = Dimensions.get('window');
 
 const CardDetails = ({ route, navigation }) => {
   const { item } = route.params;
-  const { addPoints } = useContext(UserContext);
+  const { addPoints, user } = useContext(UserContext);
   const [startTime, setStartTime] = useState(Date.now());
-  const [viewCount, setViewCount] = useState(0);
+  const videoRef = React.useRef(null);
 
   useEffect(() => {
-    // Reset the timer on mount to ensure accurate reading time
     setStartTime(Date.now());
+    console.log('Start time set for item:', item.id);
   }, [item]);
 
   const handleBackPress = () => {
     const duration = (Date.now() - startTime) / 1000; // in seconds
+    console.log('Duration:', duration, 'for item:', item.id);
 
     if (item.category === 'Article') {
       if (duration >= 20 && !item.pointsEarned) { // Finished reading
-        addPoints(item.id, 'Article', 20, "Vous avez gagné 20 points pour avoir lu l'article en entier");
-        item.pointsEarned = true; // Mark as earned
+        console.log('Article completed');
+        addPoints('Article', item.id, 20, "Vous avez gagné 20 points pour avoir lu l'article en entier");
       } else if (duration >= 10 && !item.pointsEarned) { // Read half
-        addPoints(item.id, 'Article', 10, "Vous avez gagné 10 points pour avoir lu la moitié de l'article");
-        item.pointsEarned = true; // Mark as earned
+        console.log('Article half completed');
+        addPoints('Article', item.id, 10, "Vous avez gagné 10 points pour avoir lu la moitié de l'article");
       }
-    } else if (item.category === 'Astuces') {
-      console.log('view count',viewCount)
-      if (viewCount < 3) {
-        addPoints(item.id, 'Astuces', 10, `Vous avez gagné 10 points (total ${10 * (viewCount + 1)}/30)`);
-        setViewCount(viewCount + 1);
-        if (viewCount + 1 >= 3) {
-          item.pointsEarned = true; // Mark as earned
-        }
-      }
-    } else if (item.category === 'Exercices') {
-      if (!item.pointsEarned) {
-        // Check if the video is finished
-        addPoints(item.id, 'Exercices', 50, "Vous avez gagné 50 points pour avoir regardé la vidéo en entier");
-        item.pointsEarned = true; // Mark as earned
+    }
+
+    if (item.category === 'Astuces') {
+      console.log('Astuce opened');
+      if (!user.pointsAdded[item.id] || user.pointsAdded[item.id] < 30) {
+        addPoints('Astuce', item.id, 10, "Vous avez gagné 10 points pour avoir ouvert l'astuce");
       }
     }
 
     navigation.goBack();
+  };
+
+  const handleVideoEnd = () => {
+    if (item.category === 'Exercices' && !item.pointsEarned) {
+      console.log('Exercise video ended');
+      addPoints('Exercice', item.id, 50, "Vous avez gagné 50 points pour avoir regardé la vidéo en entier");
+      item.pointsEarned = true; // Mark as earned
+    }
   };
 
   return (
@@ -54,15 +55,21 @@ const CardDetails = ({ route, navigation }) => {
       <Text style={styles.points}>Points: {item.points}</Text>
       {item.video ? (
         <Video
+          ref={videoRef}
           source={item.video}
           rate={1.0}
           volume={1.0}
           isMuted={false}
           resizeMode="cover"
           shouldPlay
-          isLooping
+          isLooping={false}
           style={styles.media}
           useNativeControls
+          onPlaybackStatusUpdate={(status) => {
+            if (status.didJustFinish) {
+              handleVideoEnd();
+            }
+          }}
         />
       ) : (
         <Image source={item.image} style={styles.media} />

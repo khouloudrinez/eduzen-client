@@ -14,10 +14,12 @@ import Card from "./Card";
 
 const data = [
   {
+    id: '1',
     title: 'Vaincre le chaos : Pourquoi la gestion du temps est importante pour les étudiants',
     image: { uri: 'https://img.freepik.com/free-photo/schedule-alarm-clock-time-concept_53876-125407.jpg?t=st=1721303441~exp=1721307041~hmac=fdcce1fe01a4f407f354da688cf72eaa9675a82f45d09e5080967b2999e69fd5&w=996' },
     points: 20,
     category: 'Article',
+    pointsEarned: 0,
     description: `
 Jongler entre les devoirs scolaires, les activités parascolaires, la vie sociale et peut-être même un emploi à temps partiel - la vie étudiante peut ressembler à un tourbillon constant. Il n'est pas étonnant que rester organisé et gérer son temps puisse être un défi majeur. Mais maîtriser les techniques de gestion du temps est bien plus qu'éviter les sessions de bourrage de dernière minute. C'est un ingrédient clé pour la réussite scolaire, la réduction du stress et un sentiment de bien-être général.
 
@@ -29,10 +31,12 @@ Alors, comment les étudiants peuvent-ils développer de meilleures compétences
     `
   },
   {
+    id: '2',
     title: 'Trouver l\'équilibre : L\'importance de concilier vie professionnelle et vie personnelle',
     image: { uri: 'https://img.freepik.com/free-photo/cheerful-businessman-with-hand-drawn-bulb_1134-513.jpg?t=st=1721306258~exp=1721309858~hmac=113da3a3052376a713c198f45e65cbba2f76078dd60ec9ebaa85e1828e5818dc&w=996' },
     points: 20,
     category: 'Article',
+    pointsEarned: 0,
     description: `
 Dans le tourbillon de la vie moderne, jongler entre les responsabilités professionnelles et les obligations personnelles peut sembler être un exercice d'équilibriste sans fin. Que vous soyez étudiant, employé ou entrepreneur, trouver un équilibre entre votre vie professionnelle et votre vie personnelle est crucial pour votre bien-être général et votre réussite à long terme.
 
@@ -64,10 +68,12 @@ Concilier vie professionnelle et vie personnelle n'est pas toujours facile, mais
     `
   },
   {
+    id: '3',
     title: 'Hey les jeunes ! Prêts à booster votre bien-être mental ?',
     image: { uri: 'https://img.freepik.com/free-photo/blonde-girl-scratching-head-thinking-about-something-graduation-gown-cap-looking-pensive_176474-82449.jpg?t=st=1721306519~exp=1721310119~hmac=3f340540fbc71d7622c549fea5f8bfb32e06d728e9cb294563afb260f6b5fe81&w=996' },
     points: 30,
     category: 'Astuces',
+    pointsEarned: 0,
     description: `
 Imaginez un super pouvoir qui vous permet de gérer le stress, d'affronter les défis avec confiance et de profiter pleinement de la vie.
 Ce super pouvoir existe, et il est accessible à tous : il s'agit de prendre soin de votre bien-être mental !
@@ -108,10 +114,12 @@ Ensemble, on peut créer un monde où le bien-être mental est accessible à tou
     `
   },
   {
+    id: '4',
     title: 'Hey les jeunes ! Prêts à booster votre bien-être mental ?',
     image: { uri: 'https://img.freepik.com/free-photo/hand-holding-squared-smiling-faces_23-2148317138.jpg?t=st=1721306258~exp=1721309858~hmac=f869da141b919acc30b962de8437a71cc13a1f39fbb59f834f7ed6bfdf0ca824&w=740' },
     points: 30,
     category: 'Astuces',
+    pointsEarned: 0,
     description: `
 Choisir sa carrière est une étape cruciale et parfois intimidante dans la vie d'un jeune. Face à la multitude de possibilités, il est facile de se sentir perdu et submergé.
 Ce blog a pour but de vous accompagner dans ce processus en vous offrant quelques astuces pour faire un choix éclairé et en accord avec vos aspirations.
@@ -144,16 +152,20 @@ Choisir sa carrière est un voyage, pas une destination. Profitez de ce processu
     `
   },
   {
+    id: '5',
     title: 'Exercices pour améliorer votre bien-être physique',
     video: video1 ,
     points: 50,
+    pointsEarned: 0,
     category: 'Exercices',
     description: ''
   },
   {
+    id: '6',
     title: 'Exercices pour améliorer votre bien-être physique',
     video: video2 ,
     points: 50,
+    pointsEarned: 0,
     category: 'Exercices',
     description: ''
   },
@@ -163,60 +175,8 @@ Choisir sa carrière est un voyage, pas une destination. Profitez de ce processu
 const HeartScreen = ({ navigation, route }) => {
   const currentScreen = route.name;
   const [activeComponent, setActiveComponent] = useState('Component1');
-  const { addPoints } = useContext(UserContext);
+  
 
-  const [progress, setProgress] = useState({}); // Tracks progress of each card
-
-  const handleArticleReading = (id) => {
-    setProgress((prevProgress) => {
-      const newProgress = { ...prevProgress };
-      if (!newProgress[id]) {
-        newProgress[id] = { halfway: false, finished: false };
-      }
-
-      if (!newProgress[id].halfway) {
-        newProgress[id].halfway = true;
-        addPoints(10, "Vous avez gagné 10 points pour la moitié de l'article.");
-      } else if (!newProgress[id].finished) {
-        newProgress[id].finished = true;
-        addPoints(10, "Vous avez gagné 10 points pour avoir terminé l'article.");
-      }
-
-      return newProgress;
-    });
-  };
-
-  const handleAstuce = (id) => {
-    setProgress((prevProgress) => {
-      const newProgress = { ...prevProgress };
-      if (!newProgress[id]) {
-        newProgress[id] = { count: 0 };
-      }
-
-      if (newProgress[id].count < 3) {
-        newProgress[id].count += 1;
-        addPoints(10, "Vous avez gagné 10 points pour cette astuce.");
-      }
-
-      return newProgress;
-    });
-  };
-
-  const handleVideo = (id) => {
-    setProgress((prevProgress) => {
-      const newProgress = { ...prevProgress };
-      if (!newProgress[id]) {
-        newProgress[id] = { watched: false };
-      }
-
-      if (!newProgress[id].watched) {
-        newProgress[id].watched = true;
-        addPoints(50, "Vous avez gagné 50 points pour avoir regardé la vidéo.");
-      }
-
-      return newProgress;
-    });
-  };
 
   const renderActiveComponent = () => {
     switch (activeComponent) {
@@ -234,18 +194,9 @@ const HeartScreen = ({ navigation, route }) => {
   };
 
   const handleCardPress = (id, category) => {
-    switch (category) {
-      case 'Article':
-        handleArticleReading(id);
-        break;
-      case 'Astuces':
-        handleAstuce(id);
-        break;
-      case 'Exercices':
-        handleVideo(id);
-        break;
-      default:
-        break;
+    const item = data.find(item => item.id === id);
+    if (item) {
+      navigation.navigate('CardDetails', { item });
     }
   };
 

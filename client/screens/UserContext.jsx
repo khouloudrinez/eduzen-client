@@ -20,7 +20,10 @@ export const UserProvider = ({ children }) => {
     gender: '',
     tasks: [],
     points: 100,
-    earnedPoints: {}
+    articlePoints: {},
+    astucePoints: {},
+    exercicePoints: {},
+    pointsAdded: {}, // Track points added for each item
   });
 
   const updateUser = (newUserData) => {
@@ -31,53 +34,74 @@ export const UserProvider = ({ children }) => {
     }));
   };
 
-  const addPoints = (itemId, category, newPoints, message) => {
+  const addPoints = (category, id, points = 0, message) => {
+    console.log(`\nAdding points...\nCategory: ${category}\nItem ID: ${id}\nPoints to add: ${points}\nCurrent total points: ${user.points}`);
+
     setUser((prevUser) => {
-      const updatedEarnedPoints = { ...prevUser.earnedPoints };
-      const currentPoints = updatedEarnedPoints[itemId] || { Article: 0, Astuces: 0, Exercices: false };
+      let newPoints = prevUser.points;
+      const newArticlePoints = { ...prevUser.articlePoints };
+      const newAstucePoints = { ...prevUser.astucePoints };
+      const newExercicePoints = { ...prevUser.exercicePoints };
+      const newPointsAdded = { ...prevUser.pointsAdded };
 
       if (category === 'Article') {
-        if (currentPoints.Article < 20) {
-          const pointsToAdd = newPoints;
-          updatedEarnedPoints[itemId] = { ...currentPoints, Article: Math.min(currentPoints.Article + pointsToAdd, 20) };
-          return {
-            ...prevUser,
-            points: prevUser.points + (updatedEarnedPoints[itemId].Article - currentPoints.Article),
-            earnedPoints: updatedEarnedPoints,
-          };
+        if (!newArticlePoints[id]) {
+          newArticlePoints[id] = 0;
         }
-      } else if (category === 'Astuces') {
-        const totalPoints = Math.min(currentPoints.Astuces + newPoints, 30);
-        if (totalPoints > currentPoints.Astuces) {
-          updatedEarnedPoints[itemId] = { ...currentPoints, Astuces: totalPoints };
-          return {
-            ...prevUser,
-            points: prevUser.points + (totalPoints - currentPoints.Astuces),
-            earnedPoints: updatedEarnedPoints,
-          };
+        const remainingPoints = 20 - newArticlePoints[id];
+        const pointsToAdd = Math.min(points, remainingPoints);
+        newPoints += pointsToAdd;
+        newArticlePoints[id] += pointsToAdd;
+        console.log(`Article points updated for ${id}: ${newArticlePoints[id]}`);
+      }
+
+      if (category === 'Astuce') {
+        if (!newAstucePoints[id]) {
+          newAstucePoints[id] = 0;
         }
-      } else if (category === 'Exercices') {
-        if (!currentPoints.Exercices) {
-          updatedEarnedPoints[itemId] = { ...currentPoints, Exercices: true };
-          return {
-            ...prevUser,
-            points: prevUser.points + newPoints,
-            earnedPoints: updatedEarnedPoints,
-          };
+        if (!newPointsAdded[id]) {
+          newPointsAdded[id] = 0;
+        }
+        const pointsPerEntry = 10;
+        const maxPoints = 30;
+        const totalPointsEarned = Math.min(pointsPerEntry, maxPoints - newAstucePoints[id]);
+        if (newAstucePoints[id] < maxPoints) {
+          newPoints += totalPointsEarned;
+          newAstucePoints[id] += totalPointsEarned;
+          newPointsAdded[id] = newAstucePoints[id]; // Track points already added
+          console.log(`Astuce points updated for ${id}: ${newAstucePoints[id]}`);
         }
       }
-      return prevUser;
+
+      if (category === 'Exercice') {
+        if (!newExercicePoints[id]) {
+          newExercicePoints[id] = 0;
+        }
+        const remainingPoints = 50 - newExercicePoints[id];
+        const pointsToAdd = Math.min(points, remainingPoints);
+        newPoints += pointsToAdd;
+        newExercicePoints[id] += pointsToAdd;
+        console.log(`Exercice points updated for ${id}: ${newExercicePoints[id]}`);
+      }
+
+      if (points > 0) {
+        Alert.alert("Points Earned", message);
+      }
+
+      console.log(`New total points: ${newPoints}`);
+      return { ...prevUser, points: newPoints, articlePoints: newArticlePoints, astucePoints: newAstucePoints, exercicePoints: newExercicePoints, pointsAdded: newPointsAdded };
     });
-    Alert.alert("Félicitations", message);
   };
+
   const addTask = (newTask) => {
     setUser((prevUser) => ({
       ...prevUser,
       tasks: [...prevUser.tasks, newTask],
     }));
   };
+
   return (
-    <UserContext.Provider value={{ user, updateUser, addPoints,addTask }}>
+    <UserContext.Provider value={{ user, updateUser, addPoints, addTask }}>
       {children}
     </UserContext.Provider>
   );
