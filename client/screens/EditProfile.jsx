@@ -1,24 +1,30 @@
 import React, { useContext, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, ScrollView, Platform } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { Picker } from '@react-native-picker/picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
 import { API_URL } from '@env';
 import BottomNavBar from '../components/BottomNavBar';
 import { UserContext } from "./UserContext";
 
-const EditProfile = ({ navigation, route  }) => {
-    const currentScreen = route.name;
-  
-    const { user, updateUser } = useContext(UserContext);
-    const [updatedUser, setUpdatedUser] = useState(user);
+const EditProfile = ({ navigation, route }) => {
+  const currentScreen = route.name;
 
+  const { user, updateUser } = useContext(UserContext);
+  const [updatedUser, setUpdatedUser] = useState(user);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
+  const handleSave = () => {
+    updateUser(updatedUser);
+    navigation.navigate('MyProfile');
+  };
 
-    const handleSave = () => {
-      updateUser(updatedUser);
-      navigation.navigate('MyProfile');
-    };
-  
+  const handleDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || updatedUser.dateOfBirth;
+    setShowDatePicker(Platform.OS === 'ios');
+    setUpdatedUser({ ...updatedUser, dateOfBirth: currentDate.toISOString().split('T')[0] });
+  };
 
   return (
     <View style={styles.container}>
@@ -43,18 +49,30 @@ const EditProfile = ({ navigation, route  }) => {
             value={updatedUser.lastName}
             onChangeText={(text) => setUpdatedUser({ ...updatedUser, lastName: text })}
           />
-          <TextInput
+          <TouchableOpacity
             style={styles.input}
-            placeholder="Date de naissance"
-            value={updatedUser.dateOfBirth}
-            onChangeText={(text) => setUpdatedUser({ ...updatedUser, dateOfBirth: text })}
-          />
-          <TextInput
+            onPress={() => setShowDatePicker(true)}
+          >
+            <Text>{updatedUser.dateOfBirth || "Date de naissance"}</Text>
+          </TouchableOpacity>
+          {showDatePicker && (
+            <DateTimePicker
+              value={new Date(updatedUser.dateOfBirth || Date.now())}
+              mode="date"
+              display="default"
+              onChange={handleDateChange}
+            />
+          )}
+          <Picker
+            selectedValue={updatedUser.gender}
             style={styles.input}
-            placeholder="Genre"
-            value={updatedUser.gender}
-            onChangeText={(text) => setUpdatedUser({ ...updatedUser, gender: text })}
-          />
+            onValueChange={(itemValue) => setUpdatedUser({ ...updatedUser, gender: itemValue })}
+          >
+            <Picker.Item label="Sélectionner le genre" value="" />
+            <Picker.Item label="Homme" value="male" />
+            <Picker.Item label="Femme" value="female" />
+            <Picker.Item label="Autre" value="other" />
+          </Picker>
           <Text style={styles.label}>Contact et adresse</Text>
           <TextInput
             style={styles.input}
@@ -108,11 +126,10 @@ const EditProfile = ({ navigation, route  }) => {
           />
         </View>
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-        <Text style={styles.saveButtonText}>Enregistrer</Text>
-      </TouchableOpacity>
+          <Text style={styles.saveButtonText}>Enregistrer</Text>
+        </TouchableOpacity>
       </ScrollView>
-      
-      <BottomNavBar navigation={navigation} currentScreen={currentScreen}  />
+      <BottomNavBar navigation={navigation} currentScreen={currentScreen} />
     </View>
   );
 };
@@ -122,7 +139,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',
-    width : width
+    width: width,
   },
   header: {
     flexDirection: 'row',
@@ -160,6 +177,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 10,
     marginBottom: 10,
+    justifyContent: 'center',
   },
   saveButton: {
     backgroundColor: '#6200EA',
@@ -168,7 +186,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
     marginTop: 10,
-    
   },
   saveButtonText: {
     color: '#FFFFFF',
