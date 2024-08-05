@@ -102,12 +102,29 @@ export const UserProvider = ({ children }) => {
     });
   };
 
-  const addTask = (newTask) => {
+  const removePastTasks = () => {
+    const currentTime = new Date();
     setUser((prevUser) => ({
       ...prevUser,
-      tasks: [...prevUser.tasks, newTask],
+      tasks: prevUser.tasks.filter(task => {
+        const taskDueDate = new Date(task.hour);
+        return taskDueDate > new Date(currentTime.getTime() - 10 * 60000); // 10 minutes buffer
+      }),
     }));
   };
+  const addTask = (newTask) => {
+    removePastTasks();
+   
+    setUser((prevUser) => {
+      const updatedTasks = [...prevUser.tasks, newTask].sort((a, b) => new Date(a.date) - new Date(b.date));
+     
+      return {
+        ...prevUser,
+        tasks: updatedTasks,
+      };
+    });
+  };
+  
 
   return (
     <UserContext.Provider value={{ user, updateUser, addPoints, addTask }}>
