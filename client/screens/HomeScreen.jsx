@@ -160,7 +160,7 @@ const HomeScreen = ({ navigation, route }) => {
               end={{ x: 1, y: 1 }}
               style={styles.pointsContainer}
             >
-              <Text style={styles.points}>100</Text>
+              <Text style={styles.points}>{user.points}</Text>
             </LinearGradient>
 
             {popupShown && (

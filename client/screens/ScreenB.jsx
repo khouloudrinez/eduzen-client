@@ -11,7 +11,7 @@ const ScreenB = ({ navigation }) => {
   useEffect(() => {
     Alert.alert(
       "Information",
-      "Ceci est juste une preuve de concept. Nous aimerions que vous testiez l'application et que vous nous donniez vos avis.",
+      "Ceci est juste un POC. Nous aimerions que vous testiez l'application et que vous nous donniez vos avis.",
       [
         {
           text: "OK",

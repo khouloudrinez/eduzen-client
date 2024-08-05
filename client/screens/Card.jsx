@@ -11,26 +11,13 @@ const Card = ({ item, onCardPress }) => {
 
     const [isPlaying, setIsPlaying] = useState(false);
 
-    const togglePlayback = async () => {
-        try {
-            if (videoRef.current) {
-                if (isPlaying) {
-                    await videoRef.current.pauseAsync();
-                } else {
-                    await videoRef.current.playAsync();
-                }
-                setIsPlaying(!isPlaying);
-            }
-        } catch (error) {
-            console.error("Error toggling playback:", error);
-        }
-    };
+
+    const handlePress = () => {
+        onCardPress(item.id, item.category);
+      };
 
     return (
-        <TouchableOpacity onPress={() => {
-            onCardPress(item.category);
-            navigation.navigate('CardDetails', { item });
-        }}>
+        <TouchableOpacity onPress={handlePress}>
             <View style={styles.card}>
                 {item.video ? (
                     <>
