@@ -19,26 +19,37 @@ const CardDetails = ({ route, navigation }) => {
   const handleBackPress = () => {
     const duration = (Date.now() - startTime) / 1000; // in seconds
     console.log('Duration:', duration, 'for item:', item.id);
-
+  
+    const wordsPerMinute = 225; // Average reading speed
+    const wordsPerSecond = wordsPerMinute / 60;
+  
+    // Assuming item.text contains the article content
+    // console.log(item)
+    const wordCount = item.description.split(/\s+/).length; // Split the text by whitespace to count words
+    const totalReadingTime = wordCount / wordsPerSecond; // in seconds
+  console.log('time',totalReadingTime)
+    const percentageRead = (duration / totalReadingTime) * 100;
+  
     if (item.category === 'Article') {
-      if (duration >= 20 && !item.pointsEarned) { // Finished reading
+      if (percentageRead >= 100 && !item.pointsEarned) { // Finished reading
         console.log('Article completed');
         addPoints('Article', item.id, 20, "Vous avez gagné 20 points pour avoir lu l'article en entier");
-      } else if (duration >= 10 && !item.pointsEarned) { // Read half
+      } else if (percentageRead >= 50 && !item.pointsEarned) { // Read half
         console.log('Article half completed');
         addPoints('Article', item.id, 10, "Vous avez gagné 10 points pour avoir lu la moitié de l'article");
       }
     }
-
+  
     if (item.category === 'Astuces') {
       console.log('Astuce opened');
       if (!user.pointsAdded[item.id] || user.pointsAdded[item.id] < 30) {
         addPoints('Astuce', item.id, 10, "Vous avez gagné 10 points pour avoir ouvert l'astuce");
       }
     }
-
+  
     navigation.goBack();
   };
+  
 
   const handleVideoEnd = () => {
     if (item.category === 'Exercices' && !item.pointsEarned) {
